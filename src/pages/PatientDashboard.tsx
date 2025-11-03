@@ -7,9 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import { Chatbot } from "@/components/Chatbot";
 import { 
   Search, MapPin, MessageCircle, Star, Phone, Navigation,
-  Clock, Package, Heart, Bell, User, LogOut, Pill
+  Clock, Package, Heart, Bell, User, LogOut, Pill, Camera, 
+  Calendar, AlertCircle, CheckCircle, XCircle
 } from "lucide-react";
-import { mockPharmacies, mockMedicines, mockChatMessages, mockSubstitutes } from "@/lib/mockData";
+import { mockPharmacies, mockMedicines, mockChatMessages, mockSubstitutes, mockRefillReminders } from "@/lib/mockData";
 import { toast } from "sonner";
 
 const PatientDashboard = () => {
@@ -17,6 +18,7 @@ const PatientDashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPharmacy, setSelectedPharmacy] = useState<string | null>(null);
   const [showChat, setShowChat] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
 
   useEffect(() => {
     const isAuth = localStorage.getItem("isAuthenticated");
@@ -90,6 +92,54 @@ const PatientDashboard = () => {
             <Button onClick={handleSearch} className="gradient-primary">
               Search
             </Button>
+            <Button onClick={() => setShowScanner(true)} variant="outline" className="gap-2">
+              <Camera className="h-4 w-4" />
+              MediTatva Lens
+            </Button>
+          </div>
+        </Card>
+
+        {/* Smart Refill Reminders */}
+        <Card className="glass-card p-6 mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-heading font-bold flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-primary" />
+              Smart Refill Reminders
+            </h3>
+            <Badge className="gradient-secondary">AI Powered</Badge>
+          </div>
+          <div className="space-y-3">
+            {mockRefillReminders.map((reminder) => (
+              <div key={reminder.id} className="p-4 rounded-lg bg-muted/50 flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <p className="font-semibold">{reminder.medicineName}</p>
+                    {reminder.status === "due-today" && (
+                      <Badge variant="destructive" className="h-5">Due Today</Badge>
+                    )}
+                    {reminder.status === "overdue" && (
+                      <Badge variant="destructive" className="h-5 bg-red-600">Overdue</Badge>
+                    )}
+                    {reminder.status === "due-soon" && (
+                      <Badge className="gradient-secondary h-5">Due Soon</Badge>
+                    )}
+                  </div>
+                  <p className="text-sm text-muted-foreground flex items-center gap-1">
+                    <MapPin className="h-3 w-3" />
+                    {reminder.pharmacy} • Next refill: {new Date(reminder.nextRefill).toLocaleDateString()}
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="outline">
+                    <Bell className="h-4 w-4 mr-2" />
+                    Remind Me
+                  </Button>
+                  <Button size="sm" className="gradient-primary">
+                    Reserve Now
+                  </Button>
+                </div>
+              </div>
+            ))}
           </div>
         </Card>
 
@@ -202,6 +252,58 @@ const PatientDashboard = () => {
             </Card>
           </div>
         </div>
+
+        {/* MediTatva Lens Scanner Modal */}
+        {showScanner && (
+          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+            onClick={() => setShowScanner(false)}
+          >
+            <Card className="glass-card w-full max-w-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="gradient-primary p-4 flex justify-between items-center">
+                <h3 className="text-white font-heading font-bold flex items-center gap-2">
+                  <Camera className="h-5 w-5" />
+                  MediTatva Lens - AI Scanner
+                </h3>
+                <Button variant="ghost" size="sm" onClick={() => setShowScanner(false)} className="text-white">
+                  Close
+                </Button>
+              </div>
+              <div className="p-6">
+                <div className="bg-muted/50 rounded-lg h-64 flex items-center justify-center mb-4 border-2 border-dashed">
+                  <div className="text-center">
+                    <Camera className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-2">Point camera at medicine packaging</p>
+                    <Button className="gradient-primary">
+                      Start Camera
+                    </Button>
+                  </div>
+                </div>
+                
+                {/* Simulated Scan Result */}
+                <div className="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-lg p-4 border border-primary/20">
+                  <div className="flex items-center gap-2 mb-3">
+                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <span className="font-semibold">Medicine Identified!</span>
+                  </div>
+                  <h4 className="text-lg font-bold mb-2">Paracetamol 500mg</h4>
+                  <p className="text-sm text-muted-foreground mb-4">Common pain reliever and fever reducer</p>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button className="gradient-primary">
+                      <Search className="h-4 w-4 mr-2" />
+                      Find Near Me
+                    </Button>
+                    <Button variant="outline">
+                      View Substitutes
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </div>
+        )}
 
         {/* Chat Overlay */}
         {showChat && (

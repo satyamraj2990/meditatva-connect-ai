@@ -189,6 +189,92 @@ export const mockSubstitutes = [
   },
 ];
 
+export const mockRefillReminders = [
+  {
+    id: "1",
+    medicineName: "Paracetamol 500mg",
+    lastRefill: "2025-10-15",
+    nextRefill: "2025-11-15",
+    status: "due-soon",
+    daysLeft: 12,
+    pharmacy: "HealthPlus Pharmacy",
+  },
+  {
+    id: "2",
+    medicineName: "Amoxicillin 250mg",
+    lastRefill: "2025-10-20",
+    nextRefill: "2025-11-03",
+    status: "due-today",
+    daysLeft: 0,
+    pharmacy: "MediCare Store",
+  },
+  {
+    id: "3",
+    medicineName: "Omeprazole 20mg",
+    lastRefill: "2025-09-28",
+    nextRefill: "2025-10-28",
+    status: "overdue",
+    daysLeft: -6,
+    pharmacy: "Wellness Pharmacy",
+  },
+];
+
+export const mockLowStockAlerts = [
+  {
+    id: "1",
+    medicineName: "Ibuprofen 400mg",
+    currentStock: 5,
+    threshold: 20,
+    severity: "critical",
+    lastSold: "2025-11-02",
+    avgDailySales: 3,
+    daysUntilStockout: 2,
+  },
+  {
+    id: "2",
+    medicineName: "Amoxicillin 250mg",
+    currentStock: 15,
+    threshold: 50,
+    severity: "warning",
+    lastSold: "2025-11-03",
+    avgDailySales: 2,
+    daysUntilStockout: 7,
+  },
+  {
+    id: "3",
+    medicineName: "Cetirizine 10mg",
+    currentStock: 8,
+    threshold: 30,
+    severity: "critical",
+    lastSold: "2025-11-03",
+    avgDailySales: 4,
+    daysUntilStockout: 2,
+  },
+];
+
+export const mockPredictiveInsights = [
+  {
+    id: "1",
+    type: "trend",
+    title: "Flu Season Spike Detected",
+    description: "Local searches for 'Flu Medicine' are up 300% in your area.",
+    prediction: "Projected to run out in 5 days",
+    recommendation: "Recommend reordering 50 units of Paracetamol and 30 units of Cetirizine now.",
+    confidence: 94,
+    medicines: ["Paracetamol 500mg", "Cetirizine 10mg"],
+  },
+  {
+    id: "2",
+    type: "seasonal",
+    title: "Allergy Season Approaching",
+    description: "Historical data shows 45% increase in antihistamine demand next week.",
+    prediction: "Stock depletion likely by Nov 10",
+    recommendation: "Stock up on Cetirizine and Loratadine by 40 units each.",
+    confidence: 87,
+    medicines: ["Cetirizine 10mg"],
+  },
+];
+
 export const chatbotResponses = {
   greeting: [
     "Hello! I'm MediBot, your AI assistant. How can I help you today?",

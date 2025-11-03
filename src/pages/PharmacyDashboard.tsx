@@ -11,9 +11,9 @@ import {
 } from "recharts";
 import {
   Package, MessageCircle, TrendingUp, Users, LogOut,
-  Plus, Edit, Trash2, AlertCircle, Pill
+  Plus, Edit, Trash2, AlertCircle, Pill, Sparkles, ArrowUp
 } from "lucide-react";
-import { mockMedicines, mockChatMessages, mockAnalytics } from "@/lib/mockData";
+import { mockMedicines, mockChatMessages, mockAnalytics, mockLowStockAlerts, mockPredictiveInsights } from "@/lib/mockData";
 import { toast } from "sonner";
 
 const PharmacyDashboard = () => {
@@ -100,6 +100,89 @@ const PharmacyDashboard = () => {
             <p className="text-sm text-muted-foreground">Chat Requests</p>
           </Card>
         </div>
+
+        {/* Low Stock Alerts Section */}
+        {mockLowStockAlerts.length > 0 && (
+          <div className="mb-8">
+            <h3 className="text-xl font-heading font-bold mb-4 flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-destructive" />
+              Inventory Threshold Alerts
+            </h3>
+            <div className="grid gap-4 md:grid-cols-3">
+              {mockLowStockAlerts.map((alert) => (
+                <Card key={alert.id} className={`glass-card p-4 border-2 ${
+                  alert.severity === "critical" 
+                    ? "border-red-500 bg-red-50/50 dark:bg-red-950/20" 
+                    : "border-yellow-500 bg-yellow-50/50 dark:bg-yellow-950/20"
+                }`}>
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <Badge variant={alert.severity === "critical" ? "destructive" : "secondary"}>
+                        {alert.severity === "critical" ? "CRITICAL" : "WARNING"}
+                      </Badge>
+                    </div>
+                    <AlertCircle className={`h-5 w-5 ${
+                      alert.severity === "critical" ? "text-red-600" : "text-yellow-600"
+                    }`} />
+                  </div>
+                  <h4 className="font-semibold mb-1">{alert.medicineName}</h4>
+                  <div className="space-y-1 text-sm text-muted-foreground mb-3">
+                    <p>Current: <span className="font-bold text-foreground">{alert.currentStock}</span> units</p>
+                    <p>Threshold: {alert.threshold} units</p>
+                    <p className="text-xs">~{alert.daysUntilStockout} days until stockout</p>
+                  </div>
+                  <Button size="sm" className="w-full gradient-primary">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Reorder Now
+                  </Button>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Predictive AI Insights */}
+        <Card className="glass-card p-6 mb-8 bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="h-10 w-10 rounded-full gradient-primary flex items-center justify-center">
+              <Sparkles className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h3 className="text-xl font-heading font-bold">AI Predictive Insights</h3>
+              <p className="text-sm text-muted-foreground">Smart forecasting based on trends & local data</p>
+            </div>
+          </div>
+          <div className="space-y-4">
+            {mockPredictiveInsights.map((insight) => (
+              <div key={insight.id} className="bg-background/80 rounded-lg p-4 border border-primary/20">
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5 text-primary" />
+                    <h4 className="font-semibold">{insight.title}</h4>
+                  </div>
+                  <Badge className="gradient-secondary">
+                    {insight.confidence}% confidence
+                  </Badge>
+                </div>
+                <p className="text-sm mb-2">{insight.description}</p>
+                <div className="bg-muted/50 rounded p-3 mb-3">
+                  <p className="text-sm font-semibold text-destructive flex items-center gap-1 mb-1">
+                    <AlertCircle className="h-4 w-4" />
+                    Prediction: {insight.prediction}
+                  </p>
+                  <p className="text-sm text-muted-foreground">{insight.recommendation}</p>
+                </div>
+                <div className="flex gap-2">
+                  {insight.medicines.map((med, idx) => (
+                    <Badge key={idx} variant="outline" className="text-xs">
+                      {med}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
 
         {/* Tab Navigation */}
         <div className="flex gap-2 mb-6 overflow-x-auto">
