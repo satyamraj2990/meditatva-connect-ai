@@ -17,17 +17,15 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    /* Primary gradient: violet to blue */
-    --primary: 263 85% 44%;
-    --primary-light: 217 97% 57%;
+    /* Medical-grade primary: blue to turquoise */
+    --primary: 199 89% 48%; /* Medical blue */
+    --primary-light: 184 77% 52%; /* Turquoise */
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary gradient: green to teal */
-    --secondary: 146 78% 58%;
-    --secondary-light: 169 92% 60%;
-    --secondary-foreground: 0 0% 100%;
-
-    /* Accent gradient: pink to coral */
+    /* Secondary gradient: teal to cyan */
+    --secondary: 174 72% 52%; /* Teal */
+    --secondary-light: 189 85% 58%; /* Cyan */
+    --secondary-foreground: 0 0% 100%;    /* Accent gradient: pink to coral */
     --accent: 349 100% 73%;
     --accent-light: 338 100% 75%;
     --accent-foreground: 0 0% 100%;
@@ -44,12 +42,10 @@ All colors MUST be HSL.
 
     --radius: 1rem;
 
-    /* Custom gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(263 85% 44%), hsl(217 97% 57%));
-    --gradient-secondary: linear-gradient(135deg, hsl(146 78% 58%), hsl(169 92% 60%));
-    --gradient-accent: linear-gradient(135deg, hsl(349 100% 73%), hsl(338 100% 75%));
-    
-    /* Glassmorphism */
+    /* Custom gradients - Medical blue to turquoise */
+    --gradient-primary: linear-gradient(135deg, hsl(199 89% 48%), hsl(184 77% 52%));
+    --gradient-secondary: linear-gradient(135deg, hsl(174 72% 52%), hsl(189 85% 58%));
+    --gradient-accent: linear-gradient(135deg, hsl(349 100% 73%), hsl(338 100% 75%));    /* Glassmorphism */
     --glass-bg: rgba(255, 255, 255, 0.85);
     --glass-border: rgba(255, 255, 255, 0.3);
     
@@ -62,24 +58,24 @@ All colors MUST be HSL.
   }
 
   .dark {
-    /* Modern dark mode with rich, deep colors */
-    --background: 240 10% 8%;
+    /* Deep navy and teal for dark mode */
+    --background: 222 47% 11%; /* Deep navy */
     --foreground: 0 0% 98%;
 
-    --card: 240 8% 12%;
+    --card: 220 40% 14%; /* Dark navy card */
     --card-foreground: 0 0% 98%;
 
-    --popover: 240 10% 10%;
+    --popover: 222 47% 11%;
     --popover-foreground: 0 0% 98%;
 
-    /* Vibrant primary colors for dark mode */
-    --primary: 263 90% 60%;
-    --primary-light: 217 100% 65%;
+    /* Vibrant medical colors for dark mode */
+    --primary: 199 89% 58%; /* Brighter medical blue */
+    --primary-light: 184 77% 62%; /* Brighter turquoise */
     --primary-foreground: 0 0% 100%;
 
-    /* Bright secondary colors */
-    --secondary: 146 80% 55%;
-    --secondary-light: 169 90% 58%;
+    /* Bright teal colors */
+    --secondary: 174 72% 60%;
+    --secondary-light: 189 85% 65%;
     --secondary-foreground: 0 0% 100%;
 
     /* Vivid accent colors */
@@ -118,7 +114,7 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Poppins', 'Inter', sans-serif;
     min-height: 100vh;
     width: 100%;
   }
@@ -494,5 +490,31 @@ All colors MUST be HSL.
   @keyframes float {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-10px); }
+  }
+
+  /* Custom Scrollbar Styles */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 10px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #93C5FD, #60A5FA);
+    border-radius: 10px;
+    transition: background 0.3s ease;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #60A5FA, #3B82F6);
+  }
+
+  /* Firefox scrollbar */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #93C5FD transparent;
   }
 }

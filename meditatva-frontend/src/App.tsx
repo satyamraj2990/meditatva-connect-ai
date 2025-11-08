@@ -8,6 +8,7 @@ import { Suspense, lazy } from "react";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import PatientDashboard from "./pages/PatientDashboard";
+import PremiumPatientDashboard from "./pages/PremiumPatientDashboard";
 import NotFound from "./pages/NotFound";
 
 // Lazy load pharmacy dashboard components for better performance
@@ -43,6 +44,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
               <Route path="/patient/dashboard" element={<PatientDashboard />} />
+              <Route path="/patient/modern" element={<PremiumPatientDashboard />} />
               
               {/* Pharmacy Dashboard with Nested Routes */}
               <Route path="/pharmacy/dashboard" element={<DashboardLayout />}>

@@ -83,13 +83,25 @@ This is general AI medical guidance for educational purposes and not a substitut
 
 Remember: Respond in the SAME LANGUAGE as the user's input!`;
 
-export const Chatbot = () => {
-  const [isOpen, setIsOpen] = useState(false);
+interface ChatbotProps {
+  onClose?: () => void;
+}
+
+export const Chatbot = ({ onClose }: ChatbotProps = {}) => {
+  const [isOpen, setIsOpen] = useState(onClose ? true : false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [chatSession, setChatSession] = useState<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const handleClose = () => {
+    if (onClose) {
+      onClose();
+    } else {
+      setIsOpen(false);
+    }
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -207,6 +219,136 @@ export const Chatbot = () => {
     }
   };
 
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSend();
+  };
+
+  // Render chat window
+  const renderChatWindow = () => (
+    <motion.div
+      className="bg-white dark:bg-[#1a1f2e] rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-white/10"
+      initial={{ scale: 0.9, y: 20 }}
+      animate={{ scale: 1, y: 0 }}
+      exit={{ scale: 0.9, y: 20 }}
+    >
+      {/* Chat Header */}
+      <div className="bg-gradient-to-r from-cyan-500 to-blue-600 p-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur flex items-center justify-center">
+            <Sparkles className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h3 className="font-bold text-white">MediTatva AI</h3>
+            <p className="text-xs text-white/80">Health Assistant</p>
+          </div>
+        </div>
+        <Button
+          onClick={handleClose}
+          variant="ghost"
+          size="icon"
+          className="hover:bg-white/10 text-white"
+        >
+          <X className="w-5 h-5" />
+        </Button>
+      </div>
+
+      {/* Messages Area */}
+      <div className="h-96 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-gray-50 to-white dark:from-[#0B1220] dark:to-[#111827]">
+        {messages.length === 0 && (
+          <div className="text-center py-8">
+            <Sparkles className="w-12 h-12 text-cyan-500 mx-auto mb-3" />
+            <p className="text-gray-600 dark:text-gray-400">
+              Hi! I'm your AI health assistant. How are you feeling today?
+            </p>
+          </div>
+        )}
+
+        {messages.map((msg, idx) => (
+          <motion.div
+            key={idx}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`flex ${msg.isBot ? "justify-start" : "justify-end"}`}
+          >
+            <Card
+              className={`max-w-[80%] p-3 ${
+                msg.isBot
+                  ? "bg-white dark:bg-white/5 border-white/10"
+                  : "bg-gradient-to-r from-cyan-500 to-blue-600 text-white border-0"
+              }`}
+            >
+              <p className="text-sm whitespace-pre-wrap">{msg.text}</p>
+            </Card>
+          </motion.div>
+        ))}
+
+        {isTyping && (
+          <div className="flex justify-start">
+            <Card className="p-3 bg-white dark:bg-white/5 border-white/10">
+              <div className="flex gap-1">
+                <motion.div
+                  className="w-2 h-2 bg-cyan-500 rounded-full"
+                  animate={{ y: [0, -8, 0] }}
+                  transition={{ duration: 0.6, repeat: Infinity }}
+                />
+                <motion.div
+                  className="w-2 h-2 bg-cyan-500 rounded-full"
+                  animate={{ y: [0, -8, 0] }}
+                  transition={{ duration: 0.6, repeat: Infinity, delay: 0.2 }}
+                />
+                <motion.div
+                  className="w-2 h-2 bg-cyan-500 rounded-full"
+                  animate={{ y: [0, -8, 0] }}
+                  transition={{ duration: 0.6, repeat: Infinity, delay: 0.4 }}
+                />
+              </div>
+            </Card>
+          </div>
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input Area */}
+      <div className="p-4 border-t border-white/10 bg-white dark:bg-[#1a1f2e]">
+        <form onSubmit={handleSendMessage} className="flex gap-2">
+          <Input
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            placeholder="Describe your symptoms..."
+            className="flex-1 bg-gray-100 dark:bg-white/5 border-white/10"
+            disabled={isTyping}
+          />
+          <Button
+            type="submit"
+            disabled={!inputValue.trim() || isTyping}
+            className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700"
+          >
+            <Send className="w-4 h-4" />
+          </Button>
+        </form>
+      </div>
+    </motion.div>
+  );
+
+  // If onClose prop is provided (controlled mode), render as modal
+  if (onClose) {
+    return isOpen ? (
+      <motion.div
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={handleClose}
+      >
+        <div onClick={(e) => e.stopPropagation()}>
+          {renderChatWindow()}
+        </div>
+      </motion.div>
+    ) : null;
+  }
+
+  // Default mode with floating button
   return (
     <>
       {/* Floating Button - Enhanced with gradient */}

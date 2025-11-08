@@ -39,6 +39,8 @@ export const NearbyMedicalStoresPage = memo(() => {
   const [searchRadius, setSearchRadius] = useState(15000);
   const [loading, setLoading] = useState(false);
   const [showMap, setShowMap] = useState(true);
+  const [manualLocationSearch, setManualLocationSearch] = useState("");
+  const [searchingManualLocation, setSearchingManualLocation] = useState(false);
 
   const GOOGLE_MAPS_API_KEY = "AIzaSyD68awf-0haNIrM9Ewj6LIXtpbHFVfC_MU";
 
@@ -53,53 +55,90 @@ export const NearbyMedicalStoresPage = memo(() => {
     }
 
     try {
+      // First, try to get the position with high accuracy
       const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: true,
-          timeout: 15000,
-          maximumAge: 0,
-        });
+        navigator.geolocation.getCurrentPosition(
+          resolve, 
+          reject, 
+          {
+            enableHighAccuracy: true,
+            timeout: 20000, // Increased timeout to 20 seconds
+            maximumAge: 0, // Don't use cached position
+          }
+        );
       });
 
-      const { latitude, longitude } = position.coords;
+      const { latitude, longitude, accuracy } = position.coords;
+      
+      console.log("📍 Location obtained:", { latitude, longitude, accuracy });
 
+      // Add a small delay to respect rate limits
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Use Nominatim for reverse geocoding with proper headers
       const response = await fetch(
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
         {
           headers: {
             "Accept-Language": "en",
+            "User-Agent": "MediTatva/1.0", // Add user agent as required by Nominatim
           },
         }
       );
 
+      if (!response.ok) {
+        throw new Error(`Geocoding failed: ${response.status}`);
+      }
+
       const data = await response.json();
+      console.log("🌍 Reverse geocoding data:", data);
+      
       const addr = data.address || {};
 
-      const city = addr.city || addr.town || addr.village || addr.municipality || addr.county || "Unknown City";
-      const state = addr.state || addr.province || "";
-      const country = addr.country || "";
+      // More comprehensive address parsing
+      const city = addr.city || 
+                   addr.town || 
+                   addr.village || 
+                   addr.municipality || 
+                   addr.suburb ||
+                   addr.county || 
+                   addr.state_district ||
+                   "Unknown City";
+      
+      const state = addr.state || addr.province || addr.region || "";
+      const country = addr.country || "India"; // Default to India for this app
       const postalCode = addr.postcode || "";
 
-      setUserLocation({
+      const locationData = {
         latitude,
         longitude,
         city,
         state,
         country,
         postalCode,
-        formattedAddress: data.display_name || `${latitude}, ${longitude}`,
-      });
+        formattedAddress: data.display_name || `${city}, ${state}` || `${latitude}, ${longitude}`,
+      };
 
+      console.log("✅ Location data set:", locationData);
+      
+      setUserLocation(locationData);
       setLocationLoading(false);
-      toast.success("Location detected successfully!");
+      
+      toast.success(`Location detected: ${city}${state ? ', ' + state : ''}`);
     } catch (error: any) {
-      console.error("Location error:", error);
-      if (error.code === 1) {
+      console.error("❌ Location error:", error);
+      
+      if (error.code === 1 || error.message?.includes("denied")) {
         setPermissionDenied(true);
-        toast.error("Location access denied. Please enable location permissions.");
+        toast.error("Location access denied. Please enable location permissions in your browser settings.");
+      } else if (error.code === 2) {
+        toast.error("Location unavailable. Please check your device's location services.");
+      } else if (error.code === 3 || error.message?.includes("timeout")) {
+        toast.error("Location request timed out. Please try again.");
       } else {
-        toast.error("Failed to get location. Please try again.");
+        toast.error("Failed to get location. Please try again or enter manually.");
       }
+      
       setLocationLoading(false);
     }
   };
@@ -233,6 +272,90 @@ export const NearbyMedicalStoresPage = memo(() => {
     }
   };
 
+  const searchLocationManually = async () => {
+    if (!manualLocationSearch.trim()) {
+      toast.error("Please enter a location (city, area, or PIN code)");
+      return;
+    }
+
+    setSearchingManualLocation(true);
+    
+    try {
+      // Add delay to respect rate limits
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Use Nominatim to search for the location
+      const searchUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(manualLocationSearch)}&countrycodes=in&addressdetails=1&limit=1`;
+      
+      const response = await fetch(searchUrl, {
+        headers: {
+          "Accept-Language": "en",
+          "User-Agent": "MediTatva/1.0",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to search location");
+      }
+
+      const results = await response.json();
+      
+      if (results.length === 0) {
+        toast.error("Location not found. Please try with a different search term.");
+        setSearchingManualLocation(false);
+        return;
+      }
+
+      const result = results[0];
+      const addr = result.address || {};
+      
+      const latitude = parseFloat(result.lat);
+      const longitude = parseFloat(result.lon);
+      
+      const city = addr.city || 
+                   addr.town || 
+                   addr.village || 
+                   addr.municipality || 
+                   addr.suburb ||
+                   addr.county || 
+                   addr.state_district ||
+                   result.name ||
+                   "Unknown City";
+      
+      const state = addr.state || addr.province || addr.region || "";
+      const country = addr.country || "India";
+      const postalCode = addr.postcode || "";
+
+      const locationData = {
+        latitude,
+        longitude,
+        city,
+        state,
+        country,
+        postalCode,
+        formattedAddress: result.display_name || `${city}, ${state}`,
+      };
+
+      console.log("✅ Manual location set:", locationData);
+      
+      setUserLocation(locationData);
+      setSearchingManualLocation(false);
+      setPermissionDenied(false); // Clear permission denied state
+      
+      toast.success(`Location set to: ${city}${state ? ', ' + state : ''}`);
+      
+      // Auto-search for stores after setting location
+      setTimeout(() => {
+        searchNearbyStores();
+      }, 500);
+      
+    } catch (error) {
+      console.error("Manual location search error:", error);
+      toast.error("Failed to find location. Please try again.");
+      setSearchingManualLocation(false);
+    }
+  };
+
   useEffect(() => {
     getCurrentLocation();
   }, []);
@@ -323,9 +446,37 @@ export const NearbyMedicalStoresPage = memo(() => {
                   <span className="text-[#5A6A85] font-medium">Detecting your location...</span>
                 </div>
               ) : permissionDenied ? (
-                <div className="flex items-center gap-3 p-4 bg-[#FFF3CD] rounded-xl border border-[#F39C12]/30">
-                  <AlertCircle className="h-5 w-5 text-[#F39C12]" />
-                  <span className="text-[#0A2342] font-medium">Location access denied. Please enable permissions.</span>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 p-4 bg-[#FFF3CD] rounded-xl border border-[#F39C12]/30">
+                    <AlertCircle className="h-5 w-5 text-[#F39C12]" />
+                    <span className="text-[#0A2342] font-medium">Location access denied. Enter your location manually below.</span>
+                  </div>
+                  
+                  {/* Manual Location Search */}
+                  <div className="flex gap-2 p-4 bg-white rounded-xl border-2 border-[#4FC3F7]/30">
+                    <div className="relative flex-1">
+                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#1B6CA8]" />
+                      <Input
+                        type="text"
+                        placeholder="Enter city, area, or PIN code (e.g., Mumbai, 400001)"
+                        value={manualLocationSearch}
+                        onChange={(e) => setManualLocationSearch(e.target.value)}
+                        onKeyPress={(e) => e.key === "Enter" && searchLocationManually()}
+                        className="pl-10 border-[#4FC3F7]/30 focus:border-[#1B6CA8]"
+                      />
+                    </div>
+                    <Button
+                      onClick={searchLocationManually}
+                      disabled={searchingManualLocation || !manualLocationSearch.trim()}
+                      className="bg-[#1B6CA8] hover:bg-[#4FC3F7] text-white"
+                    >
+                      {searchingManualLocation ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Search className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
                 </div>
               ) : userLocation ? (
                 <div className="space-y-2 p-4 bg-gradient-to-r from-[#E8F4F8] to-[#F7F9FC] rounded-xl border border-[#4FC3F7]/30">
