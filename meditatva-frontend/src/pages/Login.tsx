@@ -169,38 +169,49 @@ const Login = () => {
                   </p>
                 </div>
 
-                {/* Role Selector Tabs */}
-                <div className="relative bg-muted/30 rounded-xl p-1 backdrop-blur-sm">
-                  <motion.div
-                    className="absolute top-1 bottom-1 rounded-lg premium-tab-indicator shadow-lg"
-                    initial={false}
-                    animate={{
-                      left: role === "patient" ? "0.25rem" : "calc(50% + 0.125rem)",
-                      right: role === "patient" ? "calc(50% + 0.125rem)" : "0.25rem",
-                    }}
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  />
-                  <div className="relative grid grid-cols-2 gap-0.5">
-                    <button
-                      type="button"
-                      onClick={() => setRole("patient")}
-                      className={`relative z-10 flex items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 px-1.5 sm:px-2 rounded-lg transition-all whitespace-nowrap text-[11px] sm:text-xs md:text-sm ${
-                        role === "patient" ? "text-white" : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      <User className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
-                      <span className="font-medium">Patient</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setRole("pharmacy")}
-                      className={`relative z-10 flex items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 px-1.5 sm:px-2 rounded-lg transition-all whitespace-nowrap text-[11px] sm:text-xs md:text-sm ${
-                        role === "pharmacy" ? "text-white" : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      <Building2 className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
-                      <span className="font-medium">Pharmacy</span>
-                    </button>
+                {/* Role Selector Tabs - iOS Segmented Control Style */}
+                <div className="space-y-2">
+                  <Label className="text-xs sm:text-sm font-medium text-foreground">Select Your Role</Label>
+                  <div className="relative p-1 bg-muted/50 rounded-lg border border-border/50">
+                    <motion.div
+                      className="absolute top-1 bottom-1 rounded-md bg-primary shadow-md"
+                      initial={false}
+                      animate={{
+                        left: role === "patient" ? "0.25rem" : "50%",
+                        right: role === "patient" ? "50%" : "0.25rem",
+                      }}
+                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    />
+                    <div className="relative grid grid-cols-2 gap-1">
+                      <button
+                        type="button"
+                        onClick={() => setRole("patient")}
+                        className={`relative z-10 flex items-center justify-center gap-2 py-2.5 sm:py-3 px-3 sm:px-4 rounded-md font-semibold transition-all duration-200 text-sm sm:text-base ${
+                          role === "patient" 
+                            ? "text-primary-foreground" 
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                        aria-pressed={role === "patient"}
+                        aria-label="Login as Patient"
+                      >
+                        <User className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
+                        <span>Patient</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setRole("pharmacy")}
+                        className={`relative z-10 flex items-center justify-center gap-2 py-2.5 sm:py-3 px-3 sm:px-4 rounded-md font-semibold transition-all duration-200 text-sm sm:text-base ${
+                          role === "pharmacy" 
+                            ? "text-primary-foreground" 
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                        aria-pressed={role === "pharmacy"}
+                        aria-label="Login as Pharmacy"
+                      >
+                        <Building2 className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
+                        <span>Pharmacy</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -208,83 +219,89 @@ const Login = () => {
                 <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
                   {/* Email Field */}
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-xs sm:text-sm font-medium text-foreground">
+                    <Label htmlFor="email" className="text-sm font-semibold text-foreground">
                       Email Address
                     </Label>
                     <div className="relative">
-                      <Mail className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground z-10" />
+                      <Mail className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/70 z-10 pointer-events-none" />
                       <Input
                         id="email"
                         type="email"
-                        placeholder={role === "patient" ? "patient@meditatva.com" : "pharmacy@meditatva.com"}
+                        placeholder="Enter your email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         onFocus={() => setFocusedField("email")}
                         onBlur={() => setFocusedField(null)}
-                        className={`pl-10 sm:pl-12 h-11 sm:h-12 text-sm sm:text-base premium-input ${
-                          focusedField === "email" ? "ring-2 ring-primary/50" : ""
+                        className={`pl-11 sm:pl-12 h-12 text-base bg-background/50 border-2 transition-all ${
+                          focusedField === "email" 
+                            ? "border-primary ring-4 ring-primary/20" 
+                            : "border-border hover:border-primary/50"
                         }`}
                         required
+                        aria-label="Email Address"
                       />
                     </div>
+                    <p className="text-xs text-muted-foreground">
+                      Demo: {role === "patient" ? "patient@meditatva.com" : "pharmacy@meditatva.com"}
+                    </p>
                   </div>
 
                   {/* Password Field */}
                   <div className="space-y-2">
-                    <Label htmlFor="password" className="text-xs sm:text-sm font-medium text-foreground">
+                    <Label htmlFor="password" className="text-sm font-semibold text-foreground">
                       Password
                     </Label>
                     <div className="relative">
-                      <Lock className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground z-10" />
+                      <Lock className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/70 z-10 pointer-events-none" />
                       <Input
                         id="password"
                         type="password"
-                        placeholder={role === "patient" ? "patient123" : "pharmacy123"}
+                        placeholder="Enter your password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         onFocus={() => setFocusedField("password")}
                         onBlur={() => setFocusedField(null)}
-                        className={`pl-10 sm:pl-12 h-11 sm:h-12 text-sm sm:text-base premium-input ${
-                          focusedField === "password" ? "ring-2 ring-primary/50" : ""
+                        className={`pl-11 sm:pl-12 h-12 text-base bg-background/50 border-2 transition-all ${
+                          focusedField === "password" 
+                            ? "border-primary ring-4 ring-primary/20" 
+                            : "border-border hover:border-primary/50"
                         }`}
                         required
+                        aria-label="Password"
                       />
                     </div>
+                    <p className="text-xs text-muted-foreground">
+                      Demo: {role === "patient" ? "patient123" : "pharmacy123"}
+                    </p>
                   </div>
 
-                  {/* Login Button */}
-                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                    <Button 
-                      type="submit" 
-                      className="w-full h-11 sm:h-12 premium-button text-sm sm:text-base font-semibold relative overflow-hidden group"
-                    >
-                      <span className="relative z-10">
-                        {isSignup ? "Create Account" : "Login to Dashboard"}
-                      </span>
-                      <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                        initial={false}
-                      />
-                    </Button>
-                  </motion.div>
+                  {/* Login Button - Primary Action */}
+                  <Button 
+                    type="submit" 
+                    className="w-full h-12 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-200 bg-primary hover:bg-primary/90"
+                  >
+                    {isSignup ? "Create Account" : "Login to Dashboard"}
+                  </Button>
                 </form>
 
-                {/* Demo Credentials - Collapsible */}
-                <div>
+                {/* Demo Credentials - Secondary Action */}
+                <div className="space-y-2">
                   <button
                     type="button"
                     onClick={() => setShowDemo(!showDemo)}
-                    className="w-full flex items-center justify-between p-2.5 sm:p-3 rounded-lg bg-gradient-to-r from-purple-500/10 to-cyan-500/10 border border-purple-300/20 hover:border-purple-300/40 transition-all"
+                    className="w-full flex items-center justify-between px-4 py-3 rounded-lg border-2 border-border hover:border-primary/50 bg-background/50 hover:bg-background/80 transition-all duration-200"
+                    aria-expanded={showDemo}
+                    aria-label="Toggle demo account credentials"
                   >
-                    <span className="text-xs sm:text-sm font-medium flex items-center gap-2 text-foreground">
-                      <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-purple-400" />
-                      Demo Accounts
+                    <span className="text-sm font-medium flex items-center gap-2 text-foreground">
+                      <Sparkles className="h-4 w-4 text-primary" />
+                      Load Demo Account
                     </span>
                     <motion.div
                       animate={{ rotate: showDemo ? 180 : 0 }}
-                      transition={{ duration: 0.3 }}
+                      transition={{ duration: 0.2 }}
                     >
-                      <ChevronDown className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-foreground" />
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
                     </motion.div>
                   </button>
 
@@ -332,30 +349,29 @@ const Login = () => {
                   </AnimatePresence>
                 </div>
 
-                {/* Signup Toggle & Back to Home */}
-                <div className="space-y-2 sm:space-y-3 pt-2">
+                {/* Signup Toggle & Back to Home - Tertiary Actions */}
+                <div className="space-y-3 pt-2">
                   <div className="text-center">
                     <button
                       type="button"
                       onClick={() => setIsSignup(!isSignup)}
-                      className="text-xs sm:text-sm text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-1"
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      {isSignup ? "Already have an account?" : "Don't have an account?"}
-                      <span className="text-primary font-medium hover:underline">
-                        {isSignup ? "Login" : "Sign up"}
+                      {isSignup ? "Already have an account? " : "Don't have an account? "}
+                      <span className="text-primary font-semibold hover:underline">
+                        {isSignup ? "Sign in" : "Sign up"}
                       </span>
                     </button>
                   </div>
 
                   <div className="text-center">
-                    <Button
+                    <button
                       type="button"
-                      variant="ghost"
                       onClick={() => navigate("/")}
-                      className="text-xs sm:text-sm text-muted-foreground hover:text-foreground h-8 sm:h-auto"
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1"
                     >
                       ← Back to Home
-                    </Button>
+                    </button>
                   </div>
                 </div>
               </motion.div>
