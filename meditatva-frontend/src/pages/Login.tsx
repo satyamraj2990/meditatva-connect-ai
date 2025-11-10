@@ -170,35 +170,35 @@ const Login = () => {
                 </div>
 
                 {/* Role Selector Tabs */}
-                <div className="relative bg-muted/30 rounded-xl p-1 backdrop-blur-sm">
+                <div className="relative bg-muted/30 rounded-xl p-1.5 backdrop-blur-sm">
                   <motion.div
-                    className="absolute top-1 bottom-1 rounded-lg premium-tab-indicator shadow-lg"
+                    className="absolute top-1.5 bottom-1.5 rounded-lg premium-tab-indicator shadow-lg"
                     initial={false}
                     animate={{
-                      left: role === "patient" ? "0.25rem" : "50%",
-                      right: role === "patient" ? "50%" : "0.25rem",
+                      left: role === "patient" ? "0.375rem" : "calc(50% + 0.125rem)",
+                      right: role === "patient" ? "calc(50% + 0.125rem)" : "0.375rem",
                     }}
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                   />
-                  <div className="relative grid grid-cols-2 gap-1">
+                  <div className="relative grid grid-cols-2 gap-2">
                     <button
                       type="button"
                       onClick={() => setRole("patient")}
-                      className={`relative z-10 flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 sm:py-3 px-2 sm:px-4 rounded-lg transition-all ${
+                      className={`relative z-10 flex items-center justify-center gap-2 py-3 px-3 rounded-lg transition-all whitespace-nowrap ${
                         role === "patient" ? "text-white" : "text-muted-foreground hover:text-foreground"
                       }`}
                     >
-                      <User className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                      <User className="h-4 w-4 shrink-0" />
                       <span className="font-medium text-sm sm:text-base">Patient</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => setRole("pharmacy")}
-                      className={`relative z-10 flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 sm:py-3 px-2 sm:px-4 rounded-lg transition-all ${
+                      className={`relative z-10 flex items-center justify-center gap-2 py-3 px-3 rounded-lg transition-all whitespace-nowrap ${
                         role === "pharmacy" ? "text-white" : "text-muted-foreground hover:text-foreground"
                       }`}
                     >
-                      <Building2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                      <Building2 className="h-4 w-4 shrink-0" />
                       <span className="font-medium text-sm sm:text-base">Pharmacy</span>
                     </button>
                   </div>

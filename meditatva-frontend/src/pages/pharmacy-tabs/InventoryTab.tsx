@@ -352,26 +352,26 @@ export const InventoryTab = memo(() => {
       {/* Top Summary Banner */}
       <motion.div variants={cardVariants}>
         <Card
-          className="p-6 relative overflow-hidden"
+          className="p-3 sm:p-4 lg:p-6 relative overflow-hidden"
           style={{
             background: 'linear-gradient(135deg, #2ECC71 0%, #27AE60 100%)',
             border: 'none',
           }}
         >
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32" />
-          <div className="relative z-10 flex items-center justify-between flex-wrap gap-4">
-            <div className="flex items-center gap-4">
-              <div className="h-14 w-14 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-sm">
-                <TrendingUp className="h-7 w-7 text-white" />
+          <div className="relative z-10 flex items-center justify-between flex-wrap gap-3 sm:gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <div className="h-10 w-10 sm:h-12 sm:w-12 lg:h-14 lg:w-14 rounded-lg sm:rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 lg:h-7 lg:w-7 text-white" />
               </div>
               <div className="text-white">
-                <p className="text-sm opacity-90">Top Seller This Week</p>
-                <p className="text-2xl font-bold">{topSeller?.name} — {topSeller?.quantity} units in stock</p>
+                <p className="text-xs sm:text-sm opacity-90">Top Seller This Week</p>
+                <p className="text-base sm:text-xl lg:text-2xl font-bold">{topSeller?.name} — {topSeller?.quantity} units in stock</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <Badge className="bg-white/20 text-white border-white/30 px-4 py-2">
-                <Sparkles className="h-4 w-4 mr-2" />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Badge className="bg-white/20 text-white border-white/30 px-2 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm">
+                <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                 Live Inventory
               </Badge>
             </div>

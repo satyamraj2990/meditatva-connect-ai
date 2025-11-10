@@ -394,11 +394,11 @@ export const BillingTab = memo(() => {
         initial="initial"
         animate="animate"
         exit="exit"
-        className="space-y-4"
+        className="space-y-3 sm:space-y-4"
       >
         {/* Search and Add to Cart */}
         <Card
-          className="p-4"
+          className="p-3 sm:p-4"
           style={{
             background: 'rgba(255, 255, 255, 0.95)',
             backdropFilter: 'blur(20px)',
@@ -406,15 +406,15 @@ export const BillingTab = memo(() => {
             boxShadow: '0 4px 20px rgba(27, 108, 168, 0.08)',
           }}
         >
-          <h3 className="text-lg font-bold text-[#0A2342] mb-3">Search Medicines</h3>
-          <div className="flex gap-4 mb-4">
+          <h3 className="text-base sm:text-lg font-bold text-[#0A2342] mb-2 sm:mb-3">Search Medicines</h3>
+          <div className="flex gap-2 sm:gap-4 mb-3 sm:mb-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[#5A6A85]" />
+              <Search className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-[#5A6A85]" />
               <Input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by medicine name..."
-                className="pl-10 bg-white border-[#4FC3F7]/30 text-[#0A2342] placeholder:text-[#5A6A85] focus:border-[#1B6CA8] focus:ring-[#1B6CA8]"
+                className="pl-8 sm:pl-10 text-sm sm:text-base bg-white border-[#4FC3F7]/30 text-[#0A2342] placeholder:text-[#5A6A85] focus:border-[#1B6CA8] focus:ring-[#1B6CA8]"
               />
             </div>
           </div>

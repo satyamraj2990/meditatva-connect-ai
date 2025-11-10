@@ -121,22 +121,22 @@ export const OrderRequestsTab = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 p-3 sm:p-4 lg:p-6">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-6"
+        className="mb-4 sm:mb-6"
       >
-        <div className="flex items-center gap-3 mb-2">
-          <div className="p-3 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-xl">
-            <Package className="h-6 w-6 text-white" />
+        <div className="flex items-center gap-2 sm:gap-3 mb-2">
+          <div className="p-2 sm:p-3 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-lg sm:rounded-xl">
+            <Package className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
               Order Requests
             </h1>
-            <p className="text-gray-600">Manage incoming medicine orders from patients</p>
+            <p className="text-gray-600 text-xs sm:text-sm lg:text-base">Manage incoming medicine orders from patients</p>
           </div>
         </div>
       </motion.div>

@@ -146,12 +146,12 @@ export const AIInsightsTab = memo(() => {
       initial="initial"
       animate="animate"
       exit="exit"
-      className="space-y-6 relative"
+      className="space-y-4 sm:space-y-5 lg:space-y-6 relative"
     >
       {/* AI Summary Banner */}
       <motion.div variants={cardVariants}>
         <Card
-          className="p-6 relative overflow-hidden"
+          className="p-3 sm:p-4 lg:p-6 relative overflow-hidden"
           style={{
             background: 'linear-gradient(135deg, #1B6CA8 0%, #4FC3F7 100%)',
             border: 'none',
@@ -159,26 +159,26 @@ export const AIInsightsTab = memo(() => {
         >
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32" />
           <div className="relative z-10">
-            <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div className="flex items-start justify-between gap-3 sm:gap-4 flex-wrap">
               <div className="flex-1">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="h-12 w-12 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-sm">
-                    <Sparkles className="h-6 w-6 text-white" />
+                <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                  <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-lg sm:rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                    <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold text-white">AI-Powered Insights</h2>
-                    <p className="text-white/80 text-sm">Real-time analytics and predictions</p>
+                    <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white">AI-Powered Insights</h2>
+                    <p className="text-white/80 text-xs sm:text-sm">Real-time analytics and predictions</p>
                   </div>
                 </div>
-                <p className="text-white text-lg leading-relaxed">
+                <p className="text-white text-sm sm:text-base lg:text-lg leading-relaxed">
                   <strong>{aiSummary.topSeller}</strong> saw a <strong>{aiSummary.weeklyChange}% rise</strong> this week. 
                   Inventory turnover improved by <strong>{aiSummary.inventoryTurnover}%</strong>. 
                   You have <strong>{aiSummary.criticalAlerts} critical alerts</strong> requiring immediate attention.
                 </p>
               </div>
-              <div className="flex items-center gap-4">
-                <div className="text-center px-6 py-3 bg-white/20 rounded-xl backdrop-blur-sm">
-                  <div className="text-3xl font-bold text-white">{aiSummary.optimizationScore}%</div>
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="text-center px-3 sm:px-6 py-2 sm:py-3 bg-white/20 rounded-lg sm:rounded-xl backdrop-blur-sm">
+                  <div className="text-2xl sm:text-3xl font-bold text-white">{aiSummary.optimizationScore}%</div>
                   <div className="text-white/80 text-xs font-semibold">AI Score</div>
                 </div>
               </div>
@@ -188,9 +188,9 @@ export const AIInsightsTab = memo(() => {
       </motion.div>
 
       {/* Key Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <motion.div variants={cardVariants}>
-          <Card className="p-5 bg-white border-[#4FC3F7]/20 hover:shadow-xl transition-all duration-300">
+          <Card className="p-3 sm:p-4 lg:p-5 bg-white border-[#4FC3F7]/20 hover:shadow-xl transition-all duration-300">
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">

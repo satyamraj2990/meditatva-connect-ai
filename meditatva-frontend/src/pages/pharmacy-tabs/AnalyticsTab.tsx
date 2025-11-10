@@ -60,13 +60,13 @@ export const AnalyticsTab = memo(() => {
       initial="initial"
       animate="animate"
       exit="exit"
-      className="space-y-6"
+      className="space-y-4 sm:space-y-5 lg:space-y-6"
     >
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
         <motion.div variants={cardVariants}>
           <Card
-            className="p-5 relative overflow-hidden group cursor-pointer border-[#4FC3F7]/20 hover:border-[#4FC3F7]/40 transition-all duration-300"
+            className="p-3 sm:p-4 lg:p-5 relative overflow-hidden group cursor-pointer border-[#4FC3F7]/20 hover:border-[#4FC3F7]/40 transition-all duration-300"
             style={{
               background: 'rgba(255, 255, 255, 0.95)',
               backdropFilter: 'blur(20px)',
