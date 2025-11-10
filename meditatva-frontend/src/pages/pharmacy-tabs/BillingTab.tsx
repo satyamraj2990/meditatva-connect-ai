@@ -662,7 +662,7 @@ export const BillingTab = memo(() => {
               exit={{ scale: 0.9, opacity: 0 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+              className="w-full max-w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto"
             >
               <Card
                 className="overflow-hidden"

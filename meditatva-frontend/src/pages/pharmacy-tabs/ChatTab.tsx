@@ -346,9 +346,9 @@ export const ChatTab = memo(() => {
       exit="exit"
       className="h-[calc(100vh-120px)]"
     >
-      <Card className="h-full overflow-hidden border-[#4FC3F7]/20 flex">
+      <Card className="h-full overflow-hidden border-[#4FC3F7]/20 flex flex-col lg:flex-row">
         {/* Left Panel - Patient List */}
-        <div className="w-[380px] border-r border-[#E0E0E0] flex flex-col bg-white">
+        <div className="w-full lg:w-[380px] border-b lg:border-b-0 lg:border-r border-[#E0E0E0] flex flex-col bg-white max-h-[40vh] lg:max-h-none">
           {/* Header */}
           <div className="p-4 border-b border-[#E0E0E0]">
             <div className="flex items-center justify-between mb-4">
