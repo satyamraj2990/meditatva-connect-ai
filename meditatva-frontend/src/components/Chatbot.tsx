@@ -382,7 +382,7 @@ export const Chatbot = ({ onClose }: ChatbotProps = {}) => {
 
       {/* Chat Window */}
       {isOpen && (
-        <Card className="fixed bottom-24 right-6 w-[420px] h-[600px] shadow-2xl z-50 flex flex-col animate-in slide-in-from-bottom duration-300"
+        <Card className="fixed bottom-24 right-3 sm:right-6 w-[calc(100vw-24px)] sm:w-[420px] h-[calc(100vh-120px)] sm:h-[600px] shadow-2xl z-50 flex flex-col animate-in slide-in-from-bottom duration-300"
           style={{
             background: 'rgba(255, 255, 255, 0.98)',
             backdropFilter: 'blur(20px)',

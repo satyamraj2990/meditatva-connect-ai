@@ -243,7 +243,7 @@ export const NearbyPharmacyFinder = ({ variant = "patient", onClose }: NearbyPha
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
-        className="w-full max-w-4xl max-h-[90vh] overflow-hidden"
+        className="w-full max-w-[95vw] sm:max-w-4xl max-h-[90vh] overflow-hidden"
       >
         <Card
           className="overflow-hidden"

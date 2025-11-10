@@ -217,7 +217,7 @@ export const NearbyPharmacies = ({ variant = "patient" }: NearbyPharmaciesProps)
               exit={{ scale: 0.9, opacity: 0 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-4xl max-h-[90vh] overflow-hidden"
+              className="w-full max-w-[95vw] sm:max-w-4xl max-h-[90vh] overflow-hidden"
             >
               <Card
                 className="overflow-hidden"

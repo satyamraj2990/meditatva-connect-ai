@@ -207,7 +207,7 @@ export const GoogleMapComponent = memo(({
   }, [userLocation, stores, apiKey, onStoreClick]);
 
   return (
-    <div className="relative w-full h-[500px] rounded-xl overflow-hidden border-2 border-[#4FC3F7]/20 shadow-lg">
+    <div className="relative w-full h-[300px] sm:h-[400px] lg:h-[500px] rounded-xl overflow-hidden border-2 border-[#4FC3F7]/20 shadow-lg">
       <div ref={mapRef} className="w-full h-full" />
       {loadingRef.current && (
         <div className="absolute inset-0 flex items-center justify-center bg-white/90 backdrop-blur-sm">
