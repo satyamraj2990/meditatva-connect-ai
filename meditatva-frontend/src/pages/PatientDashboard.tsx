@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Chatbot } from "@/components/Chatbot";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LocationDisplay } from "@/components/LocationDisplay";
 import { NearbyPharmacyFinder } from "@/components/NearbyPharmacyFinder";
@@ -21,7 +20,6 @@ const PatientDashboard = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPharmacy, setSelectedPharmacy] = useState<string | null>(null);
-  const [showChat, setShowChat] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
   const [showNearbyFinder, setShowNearbyFinder] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
@@ -463,10 +461,6 @@ const PatientDashboard = () => {
                         <Button 
                           size="sm" 
                           variant="outline" 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setShowChat(true);
-                          }}
                           className="border-white/10 hover:bg-white/5 text-gray-300 text-xs sm:text-sm"
                         >
                           <MessageCircle className="h-4 w-4 sm:mr-2" />
@@ -751,107 +745,6 @@ const PatientDashboard = () => {
             </motion.div>
           )}
         </AnimatePresence>
-
-        {/* Chat Overlay - Premium Design */}
-        <AnimatePresence>
-          {showChat && (
-            <motion.div 
-              className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowChat(false)}
-            >
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-2xl h-[600px] flex flex-col"
-              >
-                <Card 
-                  className="flex flex-col h-full overflow-hidden"
-                  style={{
-                    background: 'rgba(17, 24, 39, 0.95)',
-                    backdropFilter: 'blur(20px)',
-                    border: '1px solid rgba(147, 51, 234, 0.3)',
-                  }}
-                >
-                  <div 
-                    className="p-4 flex justify-between items-center flex-shrink-0"
-                    style={{
-                      background: 'linear-gradient(135deg, rgba(147, 51, 234, 0.2) 0%, rgba(37, 99, 235, 0.2) 100%)',
-                      borderBottom: '1px solid rgba(147, 51, 234, 0.3)',
-                    }}
-                  >
-                    <h3 className="text-white font-bold">Chat with Pharmacy</h3>
-                    <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => setShowChat(false)} 
-                        className="text-white hover:bg-white/10"
-                      >
-                        <XCircle className="h-5 w-5" />
-                      </Button>
-                    </motion.div>
-                  </div>
-                  
-                  <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#0B1220]/50">
-                    {mockChatMessages.map((msg, index) => (
-                      <motion.div 
-                        key={msg.id} 
-                        className={`flex ${msg.isPatient ? "justify-end" : "justify-start"}`}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.1 }}
-                      >
-                        <div 
-                          className={`max-w-[70%] rounded-2xl px-4 py-2 ${
-                            msg.isPatient 
-                              ? "bg-gradient-to-br from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/30"
-                              : "bg-[#111827] text-gray-200 border border-white/10"
-                          }`}
-                        >
-                          <p className="text-sm">{msg.message}</p>
-                          <p className={`text-xs mt-1 ${msg.isPatient ? 'opacity-80' : 'text-gray-500'}`}>
-                            {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          </p>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                  
-                  <div 
-                    className="p-4 border-t border-white/10 flex-shrink-0"
-                    style={{
-                      background: 'rgba(17, 24, 39, 0.8)',
-                    }}
-                  >
-                    <div className="flex gap-2">
-                      <Input 
-                        placeholder="Type your message..." 
-                        className="bg-[#111827] border-white/10 text-white placeholder:text-gray-500 focus:border-cyan-500/50"
-                      />
-                      <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                        <Button 
-                          style={{
-                            background: 'rgba(17, 24, 39, 0.8)',
-                            border: '1px solid rgba(20, 184, 166, 0.5)',
-                            boxShadow: '0 0 20px rgba(20, 184, 166, 0.2)',
-                          }}
-                        >
-                          Send
-                        </Button>
-                      </motion.div>
-                    </div>
-                  </div>
-                </Card>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
 
       {/* Nearby Pharmacy Finder Modal */}
@@ -863,9 +756,6 @@ const PatientDashboard = () => {
           />
         )}
       </AnimatePresence>
-
-      {/* Chatbot */}
-      <Chatbot />
     </div>
   );
 };

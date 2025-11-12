@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { Chatbot } from "@/components/Chatbot";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LocationDisplay } from "@/components/LocationDisplay";
 import { NearbyPharmacyFinder } from "@/components/NearbyPharmacyFinder";
@@ -2452,9 +2451,6 @@ const PharmacyDashboard = () => {
           />
         )}
       </AnimatePresence>
-
-      {/* Chatbot */}
-      <Chatbot />
     </div>
   );
 };

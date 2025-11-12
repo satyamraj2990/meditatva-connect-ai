@@ -21,7 +21,6 @@ import {
   Zap,
   TrendingUp
 } from "lucide-react";
-import { ThemeToggle } from "@/components/ThemeToggle";
 
 const Index = () => {
   const { scrollY } = useScroll();
@@ -127,9 +126,9 @@ const Index = () => {
           transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
         />
         
-        {/* Radial Glows - Precise, Not Blurry */}
+        {/* Radial Glows - Responsive */}
         <motion.div
-          className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full"
+          className="absolute top-1/4 left-1/4 w-64 h-64 sm:w-96 sm:h-96 lg:w-[500px] lg:h-[500px] rounded-full"
           style={{
             background: 'radial-gradient(circle, rgba(37, 99, 235, 0.15) 0%, transparent 70%)',
           }}
@@ -140,7 +139,7 @@ const Index = () => {
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div
-          className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] rounded-full"
+          className="absolute bottom-1/4 right-1/4 w-72 h-72 sm:w-[450px] sm:h-[450px] lg:w-[600px] lg:h-[600px] rounded-full"
           style={{
             background: 'radial-gradient(circle, rgba(20, 184, 166, 0.12) 0%, transparent 70%)',
           }}
@@ -178,21 +177,20 @@ const Index = () => {
               MediTatva
             </span>
           </motion.div>
-          <ThemeToggle />
         </div>
       </motion.nav>
 
       {/* Hero Section - Premium Enterprise Design */}
       <section ref={heroRef} className="relative min-h-screen flex items-center justify-center px-4 pt-20">
-        {/* Rotating Ring Animation */}
+        {/* Rotating Ring Animation - Responsive */}
         <motion.div
           className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none"
           animate={{ rotate: 360 }}
           transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
         >
-          <div className="w-[800px] h-[800px] rounded-full border border-cyan-500/30" />
-          <div className="absolute w-[700px] h-[700px] rounded-full border border-blue-500/20" />
-          <div className="absolute w-[600px] h-[600px] rounded-full border border-purple-500/20" />
+          <div className="w-64 h-64 sm:w-96 sm:h-96 md:w-[600px] md:h-[600px] lg:w-[800px] lg:h-[800px] rounded-full border border-cyan-500/30" />
+          <div className="absolute w-56 h-56 sm:w-80 sm:h-80 md:w-[500px] md:h-[500px] lg:w-[700px] lg:h-[700px] rounded-full border border-blue-500/20" />
+          <div className="absolute w-48 h-48 sm:w-64 sm:h-64 md:w-[400px] md:h-[400px] lg:w-[600px] lg:h-[600px] rounded-full border border-purple-500/20" />
         </motion.div>
 
         <motion.div 
@@ -232,13 +230,13 @@ const Index = () => {
             </div>
           </motion.div>
 
-          {/* Main Title with Gradient Stroke */}
+          {/* Main Title with Gradient Stroke - Responsive */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <h1 className="text-6xl md:text-8xl font-bold mb-6 relative inline-block">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-6 relative inline-block px-4">
               <span 
                 className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent"
                 style={{
@@ -263,7 +261,7 @@ const Index = () => {
           </motion.div>
 
           <motion.p 
-            className="text-2xl md:text-4xl font-semibold mb-4 text-white/90"
+            className="text-lg sm:text-xl md:text-2xl lg:text-4xl font-semibold mb-4 text-white/90 px-4"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
@@ -272,7 +270,7 @@ const Index = () => {
           </motion.p>
 
           <motion.p 
-            className="text-lg md:text-xl text-gray-400 mb-12 max-w-3xl mx-auto"
+            className="text-base sm:text-lg md:text-xl text-gray-400 mb-8 sm:mb-12 max-w-3xl mx-auto px-4"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
@@ -280,41 +278,43 @@ const Index = () => {
             AI-powered platform connecting you with nearby pharmacies — anytime, anywhere
           </motion.p>
 
-          {/* Premium CTA Buttons */}
+          {/* Premium CTA Buttons - Mobile Optimized */}
           <motion.div 
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+            className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-stretch sm:items-center px-4"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
           >
-            <Link to="/login?role=patient">
+            <Link to="/login?role=patient" className="w-full sm:w-auto">
               <motion.div
                 whileHover={{ scale: 1.03, y: -2 }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ duration: 0.2 }}
+                className="w-full"
               >
-                <Button className="group relative text-lg px-10 py-7 h-auto bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 border border-cyan-400/50 shadow-lg shadow-cyan-500/30">
-                  <span className="relative z-10 flex items-center gap-2 font-semibold">
-                    <Heart className="h-5 w-5" />
+                <Button className="group relative text-base sm:text-lg px-6 sm:px-10 py-5 sm:py-7 h-auto w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 border border-cyan-400/50 shadow-lg shadow-cyan-500/30">
+                  <span className="relative z-10 flex items-center justify-center gap-2 font-semibold">
+                    <Heart className="h-4 w-4 sm:h-5 sm:w-5" />
                     Login as Patient
-                    <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                    <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform" />
                   </span>
                   <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-cyan-400 to-blue-500 opacity-0 group-hover:opacity-100 blur transition-opacity" />
                 </Button>
               </motion.div>
             </Link>
 
-            <Link to="/login?role=pharmacy">
+            <Link to="/login?role=pharmacy" className="w-full sm:w-auto">
               <motion.div
                 whileHover={{ scale: 1.03, y: -2 }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ duration: 0.2 }}
+                className="w-full"
               >
-                <Button className="group relative text-lg px-10 py-7 h-auto bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-400 hover:to-pink-500 border border-purple-400/50 shadow-lg shadow-purple-500/30">
-                  <span className="relative z-10 flex items-center gap-2 font-semibold">
-                    <Activity className="h-5 w-5" />
+                <Button className="group relative text-base sm:text-lg px-6 sm:px-10 py-5 sm:py-7 h-auto w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-400 hover:to-pink-500 border border-purple-400/50 shadow-lg shadow-purple-500/30">
+                  <span className="relative z-10 flex items-center justify-center gap-2 font-semibold">
+                    <Activity className="h-4 w-4 sm:h-5 sm:w-5" />
                     Login as Pharmacy
-                    <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                    <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform" />
                   </span>
                   <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-purple-400 to-pink-500 opacity-0 group-hover:opacity-100 blur transition-opacity" />
                 </Button>
@@ -576,21 +576,21 @@ const Index = () => {
       </section>
 
       {/* CTA Section - Premium Glass + Neon Borders */}
-      <section className="py-32 relative overflow-hidden">
-        {/* Rotating Ring Background */}
+      <section className="py-16 sm:py-24 lg:py-32 relative overflow-hidden">
+        {/* Rotating Ring Background - Responsive */}
         <motion.div 
           className="absolute inset-0 flex items-center justify-center pointer-events-none"
           animate={{ rotate: 360 }}
           transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
         >
-          <div className="w-[800px] h-[800px] rounded-full border border-cyan-500/10" />
+          <div className="w-64 h-64 sm:w-96 sm:h-96 md:w-[600px] md:h-[600px] lg:w-[800px] lg:h-[800px] rounded-full border border-cyan-500/10" />
         </motion.div>
         <motion.div 
           className="absolute inset-0 flex items-center justify-center pointer-events-none"
           animate={{ rotate: -360 }}
           transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
         >
-          <div className="w-[600px] h-[600px] rounded-full border border-blue-500/10" />
+          <div className="w-48 h-48 sm:w-72 sm:h-72 md:w-[450px] md:h-[450px] lg:w-[600px] lg:h-[600px] rounded-full border border-blue-500/10" />
         </motion.div>
 
         <motion.div 
@@ -601,7 +601,7 @@ const Index = () => {
           variants={fadeInUp}
         >
           <Card 
-            className="p-12 md:p-16 text-center relative overflow-hidden"
+            className="p-6 sm:p-8 md:p-12 lg:p-16 text-center relative overflow-hidden"
             style={{
               background: 'rgba(17, 24, 39, 0.4)',
               backdropFilter: 'blur(20px)',

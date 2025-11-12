@@ -1,0 +1,483 @@
+import { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { 
+  Camera, 
+  X, 
+  Upload, 
+  Loader2, 
+  CheckCircle2, 
+  AlertCircle,
+  Pill,
+  FileText,
+  AlertTriangle,
+  Scan
+} from 'lucide-react';
+import { toast } from 'sonner';
+import { 
+  analyzePrescriptionFile, 
+  analyzePrescriptionFromCamera,
+  VisionResponse 
+} from '@/services/visionService';
+
+interface PrescriptionScannerProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export const PrescriptionScanner = ({ isOpen, onClose }: PrescriptionScannerProps) => {
+  const [mode, setMode] = useState<'choose' | 'camera' | 'upload'>('choose');
+  const [isScanning, setIsScanning] = useState(false);
+  const [result, setResult] = useState<VisionResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [stream, setStream] = useState<MediaStream | null>(null);
+  
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Start camera
+  const startCamera = async () => {
+    try {
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment', width: 1280, height: 720 },
+        audio: false,
+      });
+      
+      setStream(mediaStream);
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+      }
+      setMode('camera');
+      setError(null);
+    } catch (err) {
+      console.error('Camera error:', err);
+      setError('Failed to access camera. Please check permissions.');
+      toast.error('Camera access denied');
+    }
+  };
+
+  // Stop camera
+  const stopCamera = () => {
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      setStream(null);
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+  };
+
+  // Cleanup on unmount or close
+  useEffect(() => {
+    return () => {
+      stopCamera();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) {
+      stopCamera();
+      setMode('choose');
+      setResult(null);
+      setError(null);
+    }
+  }, [isOpen]);
+
+  // Capture from camera
+  const captureImage = async () => {
+    if (!videoRef.current) return;
+
+    setIsScanning(true);
+    setError(null);
+
+    try {
+      const analysisResult = await analyzePrescriptionFromCamera(videoRef.current);
+      setResult(analysisResult);
+      stopCamera();
+      
+      // Check if demo mode was used (text starts with "DEMO MODE")
+      if (analysisResult.text.startsWith('DEMO MODE')) {
+        toast.warning('Demo Mode: Vision API error. Check console for details.');
+      } else {
+        toast.success('Prescription scanned successfully!');
+      }
+    } catch (err) {
+      console.error('❌ Scan error:', err);
+      setError('Failed to analyze prescription. Please try again.');
+      toast.error('Scan failed');
+    } finally {
+      setIsScanning(false);
+    }
+  };
+
+  // Upload file
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file');
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('Image size should be less than 10MB');
+      return;
+    }
+
+    setIsScanning(true);
+    setError(null);
+    setMode('upload');
+
+    try {
+      const analysisResult = await analyzePrescriptionFile(file);
+      setResult(analysisResult);
+      
+      // Check if demo mode was used (text starts with "DEMO MODE")
+      if (analysisResult.text.startsWith('DEMO MODE')) {
+        toast.warning('Demo Mode: Vision API error. Check console for details.');
+      } else {
+        toast.success('Prescription analyzed successfully!');
+      }
+    } catch (err) {
+      console.error('❌ Upload error:', err);
+      setError('Failed to analyze prescription. Please try again.');
+      toast.error('Analysis failed');
+    } finally {
+      setIsScanning(false);
+    }
+  };
+
+  // Reset to choose mode
+  const resetScanner = () => {
+    setMode('choose');
+    setResult(null);
+    setError(null);
+    stopCamera();
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+      >
+        <motion.div
+          className="bg-white dark:bg-slate-950 rounded-3xl max-w-2xl w-full shadow-2xl border-2 border-white/20 dark:border-cyan-500/30 max-h-[90vh] overflow-y-auto"
+          initial={{ scale: 0.9, y: 20 }}
+          animate={{ scale: 1, y: 0 }}
+          exit={{ scale: 0.9, y: 20 }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="sticky top-0 bg-white dark:bg-slate-950 border-b border-gray-200 dark:border-slate-800 p-6 rounded-t-3xl z-10">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                  <Scan className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-[rgb(var(--text-primary))]">
+                    Prescription Scanner
+                  </h3>
+                  <p className="text-sm text-[rgb(var(--text-secondary))]">
+                    Powered by Google Vision AI
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onClose}
+                className="h-10 w-10 rounded-full hover:bg-red-500/10"
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+          </div>
+
+          <div className="p-6">
+            <AnimatePresence mode="wait">
+              {/* Choose Mode */}
+              {mode === 'choose' && !result && (
+                <motion.div
+                  key="choose"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="space-y-4"
+                >
+                  <p className="text-center text-[rgb(var(--text-secondary))] mb-6">
+                    Choose how you want to scan your prescription
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Camera Option */}
+                    <motion.div
+                      whileHover={{ scale: 1.02, y: -4 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <Card
+                        onClick={startCamera}
+                        className="p-6 cursor-pointer bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 border-2 border-blue-200 dark:border-blue-500/30 hover:border-blue-400 dark:hover:border-cyan-400 transition-all shadow-lg hover:shadow-xl"
+                      >
+                        <div className="text-center space-y-4">
+                          <div className="mx-auto h-16 w-16 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                            <Camera className="h-8 w-8 text-white" />
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-lg text-[rgb(var(--text-primary))]">
+                              Use Camera
+                            </h4>
+                            <p className="text-sm text-[rgb(var(--text-secondary))] mt-1">
+                              Take a photo of prescription
+                            </p>
+                          </div>
+                        </div>
+                      </Card>
+                    </motion.div>
+
+                    {/* Upload Option */}
+                    <motion.div
+                      whileHover={{ scale: 1.02, y: -4 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <Card
+                        onClick={() => fileInputRef.current?.click()}
+                        className="p-6 cursor-pointer bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 border-2 border-purple-200 dark:border-purple-500/30 hover:border-purple-400 dark:hover:border-purple-400 transition-all shadow-lg hover:shadow-xl"
+                      >
+                        <div className="text-center space-y-4">
+                          <div className="mx-auto h-16 w-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                            <Upload className="h-8 w-8 text-white" />
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-lg text-[rgb(var(--text-primary))]">
+                              Upload Image
+                            </h4>
+                            <p className="text-sm text-[rgb(var(--text-secondary))] mt-1">
+                              Choose from gallery
+                            </p>
+                          </div>
+                        </div>
+                      </Card>
+                    </motion.div>
+                  </div>
+
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                </motion.div>
+              )}
+
+              {/* Camera Mode */}
+              {mode === 'camera' && !result && (
+                <motion.div
+                  key="camera"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="space-y-4"
+                >
+                  <div className="relative aspect-video bg-black rounded-2xl overflow-hidden">
+                    <video
+                      ref={videoRef}
+                      autoPlay
+                      playsInline
+                      className="w-full h-full object-cover"
+                    />
+                    {isScanning && (
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <div className="text-center">
+                          <Loader2 className="h-12 w-12 text-cyan-400 animate-spin mx-auto mb-3" />
+                          <p className="text-white font-semibold">Analyzing prescription...</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {error && (
+                    <div className="p-4 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-500/30 rounded-xl flex items-center gap-3">
+                      <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
+                      <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
+                    </div>
+                  )}
+
+                  <div className="flex gap-3">
+                    <Button
+                      onClick={resetScanner}
+                      variant="outline"
+                      className="flex-1"
+                      disabled={isScanning}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={captureImage}
+                      className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white"
+                      disabled={isScanning}
+                    >
+                      {isScanning ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Scanning...
+                        </>
+                      ) : (
+                        <>
+                          <Camera className="h-4 w-4 mr-2" />
+                          Capture & Analyze
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Upload/Scanning Mode */}
+              {mode === 'upload' && isScanning && (
+                <motion.div
+                  key="uploading"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="py-12 text-center"
+                >
+                  <Loader2 className="h-16 w-16 text-cyan-500 animate-spin mx-auto mb-4" />
+                  <h4 className="text-xl font-bold text-[rgb(var(--text-primary))] mb-2">
+                    Analyzing Prescription
+                  </h4>
+                  <p className="text-[rgb(var(--text-secondary))]">
+                    Please wait while we process your image...
+                  </p>
+                </motion.div>
+              )}
+
+              {/* Results */}
+              {result && (
+                <motion.div
+                  key="results"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="space-y-6"
+                >
+                  {/* Success Header */}
+                  <div className="text-center">
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: 'spring', delay: 0.2 }}
+                      className="mx-auto h-16 w-16 rounded-full bg-green-100 dark:bg-green-950/30 flex items-center justify-center mb-4"
+                    >
+                      <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" />
+                    </motion.div>
+                    <h4 className="text-2xl font-bold text-[rgb(var(--text-primary))] mb-2">
+                      Scan Complete!
+                    </h4>
+                    <p className="text-[rgb(var(--text-secondary))]">
+                      Confidence: {Math.round(result.confidence * 100)}%
+                    </p>
+                  </div>
+
+                  {/* Medications */}
+                  {result.medications.length > 0 && (
+                    <Card className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 border-2 border-blue-200 dark:border-blue-500/20">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Pill className="h-5 w-5 text-blue-600 dark:text-cyan-400" />
+                        <h5 className="font-bold text-[rgb(var(--text-primary))]">Medications Detected</h5>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {result.medications.map((med, index) => (
+                          <Badge
+                            key={index}
+                            className="bg-blue-500 hover:bg-blue-600 text-white"
+                          >
+                            {med}
+                          </Badge>
+                        ))}
+                      </div>
+                    </Card>
+                  )}
+
+                  {/* Dosages */}
+                  {result.dosages.length > 0 && (
+                    <Card className="p-4 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 border-2 border-purple-200 dark:border-purple-500/20">
+                      <div className="flex items-center gap-2 mb-3">
+                        <FileText className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                        <h5 className="font-bold text-[rgb(var(--text-primary))]">Dosage Information</h5>
+                      </div>
+                      <ul className="space-y-1">
+                        {result.dosages.map((dosage, index) => (
+                          <li key={index} className="text-sm text-[rgb(var(--text-secondary))]">
+                            • {dosage}
+                          </li>
+                        ))}
+                      </ul>
+                    </Card>
+                  )}
+
+                  {/* Warnings */}
+                  {result.warnings.length > 0 && (
+                    <Card className="p-4 bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-950/20 dark:to-amber-950/20 border-2 border-orange-200 dark:border-orange-500/20">
+                      <div className="flex items-center gap-2 mb-3">
+                        <AlertTriangle className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                        <h5 className="font-bold text-[rgb(var(--text-primary))]">Warnings & Notes</h5>
+                      </div>
+                      <ul className="space-y-1">
+                        {result.warnings.map((warning, index) => (
+                          <li key={index} className="text-sm text-[rgb(var(--text-secondary))]">
+                            • {warning}
+                          </li>
+                        ))}
+                      </ul>
+                    </Card>
+                  )}
+
+                  {/* Full Text */}
+                  {result.text && (
+                    <Card className="p-4 bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-900/20 dark:to-gray-900/20 border-2 border-slate-200 dark:border-slate-700/20">
+                      <h5 className="font-bold text-[rgb(var(--text-primary))] mb-2">Full Text</h5>
+                      <p className="text-sm text-[rgb(var(--text-secondary))] whitespace-pre-wrap max-h-40 overflow-y-auto">
+                        {result.text}
+                      </p>
+                    </Card>
+                  )}
+
+                  {/* Actions */}
+                  <div className="flex gap-3">
+                    <Button
+                      onClick={resetScanner}
+                      variant="outline"
+                      className="flex-1"
+                    >
+                      Scan Another
+                    </Button>
+                    <Button
+                      onClick={onClose}
+                      className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white"
+                    >
+                      <CheckCircle2 className="h-4 w-4 mr-2" />
+                      Done
+                    </Button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
+};

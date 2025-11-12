@@ -1,15 +1,15 @@
 import { memo, useEffect, useState } from "react";
-import { Outlet, useLocation, useNavigate, NavLink } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { SmartSidebarLayout } from "@/components/SmartSidebarLayout";
+import type { SidebarItem } from "@/components/SmartSidebarLayout";
 import {
   ShoppingCart, Receipt, PackageSearch, BarChart3, MessageCircle,
-  Sparkles, LogOut, Pill, Bell, User, ChevronRight, Activity,
-  Zap, TrendingUp, Menu, X
+  Sparkles, LogOut, Pill, Bell, User, Activity, Zap, TrendingUp
 } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
 import { toast } from "sonner";
 
 type Tab = "order-requests" | "billing" | "inventory" | "analytics" | "chat" | "ai";

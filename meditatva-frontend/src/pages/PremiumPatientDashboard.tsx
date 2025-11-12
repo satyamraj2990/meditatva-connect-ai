@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge";
 import { EnhancedThemeToggle } from "@/components/EnhancedThemeToggle";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { OrderProvider } from "@/contexts/OrderContext";
-import { Chatbot } from "@/components/Chatbot";
 import { MedicalCabinet } from "@/components/MedicalCabinet";
 import { AppointmentsSection } from "@/components/AppointmentsSection";
 import { MedicineOrders } from "@/components/MedicineOrders";
@@ -17,6 +16,7 @@ import { HealthReminders } from "@/components/HealthReminders";
 import { NearbyMedicalStoresPage } from "@/pages/NearbyMedicalStoresPage";
 import { FindMedicineEnhanced } from "@/pages/FindMedicineEnhanced";
 import { MyMedicineCabinetPage } from "@/pages/MyMedicineCabinetPage";
+import { PrescriptionScanner } from "@/components/PrescriptionScanner";
 import {
   Home, Calendar, ShoppingCart, Bell, FolderOpen,
   MapPin, MessageCircle, LogOut, Menu, X,
@@ -30,11 +30,15 @@ type Section = "home" | "nearby" | "find-medicine" | "orders" | "cabinet" | "app
 const PremiumPatientDashboardInner = () => {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState<Section>("nearby");
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [showChat, setShowChat] = useState(false);
+  // Initialize sidebar as collapsed on mobile, open on desktop
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 768;
+    }
+    return false;
+  });
   const [showScanner, setShowScanner] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Ensure demo auth for patient
   useEffect(() => {
@@ -44,6 +48,18 @@ const PremiumPatientDashboardInner = () => {
       localStorage.setItem("isAuthenticated", "true");
       localStorage.setItem("userRole", "patient");
     }
+  }, []);
+
+  // Handle window resize to auto-collapse on mobile
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setSidebarCollapsed(true);
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   // Enhanced menu items with new order for Indian healthcare focus
@@ -114,14 +130,14 @@ const PremiumPatientDashboardInner = () => {
   ];
 
   return (
-    <div className="min-h-screen relative overflow-hidden transition-colors duration-500">
+    <div className="min-h-screen relative overflow-x-hidden overflow-y-auto transition-colors duration-500">
       {/* Premium Animated Background */}
       <div className="fixed inset-0 bg-[rgb(var(--bg-primary))] transition-colors duration-500" />
       
-      {/* Gradient Orbs */}
+      {/* Gradient Orbs - Responsive & Theme-aware */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <motion.div
-          className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full"
+          className="absolute top-0 right-0 w-64 h-64 sm:w-96 sm:h-96 md:w-[500px] md:h-[500px] lg:w-[600px] lg:h-[600px] rounded-full"
           style={{
             background: "radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%)",
           }}
@@ -137,7 +153,7 @@ const PremiumPatientDashboardInner = () => {
           }}
         />
         <motion.div
-          className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full"
+          className="absolute bottom-0 left-0 w-56 h-56 sm:w-80 sm:h-80 md:w-[400px] md:h-[400px] lg:w-[500px] lg:h-[500px] rounded-full"
           style={{
             background: "radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, transparent 70%)",
           }}
@@ -153,9 +169,9 @@ const PremiumPatientDashboardInner = () => {
           }}
         />
         <motion.div
-          className="absolute top-1/2 left-1/2 w-[400px] h-[400px] rounded-full -translate-x-1/2 -translate-y-1/2"
+          className="absolute top-1/2 left-1/2 w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80 lg:w-[400px] lg:h-[400px] rounded-full -translate-x-1/2 -translate-y-1/2"
           style={{
-            background: "radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%)",
+            background: "radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 70%)",
           }}
           animate={{
             scale: [1, 1.1, 1],
@@ -177,38 +193,43 @@ const PremiumPatientDashboardInner = () => {
            }}
       />
 
-      <div className="flex relative z-10">
-        {/* Mobile Overlay */}
-        <AnimatePresence>
-          {mobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
-              onClick={() => setMobileMenuOpen(false)}
-            />
-          )}
-        </AnimatePresence>
+      {/* Mobile Menu Overlay */}
+      {!sidebarCollapsed && (
+        <motion.div
+          className="fixed inset-0 bg-black/50 md:hidden"
+          style={{ zIndex: 998 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={() => setSidebarCollapsed(true)}
+        />
+      )}
 
+      <div className="flex relative z-10">
         {/* Premium Glassmorphism Sidebar */}
         <motion.aside
+          initial={false}
+          animate={{
+            opacity: sidebarCollapsed ? 0 : 1
+          }}
           className={`
-            ${sidebarCollapsed ? 'w-20' : 'w-80'} h-screen fixed left-0 top-0 z-50 transition-all duration-500 ease-out
-            ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+            h-screen fixed left-0 top-0
+            transition-all duration-300 ease-in-out
+            ${sidebarCollapsed 
+              ? 'hidden md:block md:-translate-x-0 md:w-20 md:opacity-100' 
+              : 'block translate-x-0 w-full max-w-[85vw] sm:max-w-[320px]'
+            }
           `}
-          initial={{ x: -100, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ duration: 0.5, type: "spring" }}
+          style={{ zIndex: 999 }}
+          transition={{ duration: 0.3 }}
         >
           <div
-            className="h-full backdrop-blur-2xl bg-white/80 dark:bg-slate-900/80 border-r border-[rgb(var(--border-color))] shadow-2xl transition-colors duration-500"
+            className={`h-full backdrop-blur-sm sm:backdrop-blur-2xl bg-white/90 sm:bg-white/80 dark:bg-slate-950/95 sm:dark:bg-slate-950/90 border-r border-[rgb(var(--border-color))] dark:border-slate-800 shadow-2xl transition-colors duration-500 ${sidebarCollapsed ? 'p-2 md:p-3' : 'p-4 sm:p-6'}`}
             style={{
               boxShadow: "0 0 60px rgba(59, 130, 246, 0.1)",
             }}
           >
-            <div className="flex flex-col h-full p-6">
+            <div className="flex flex-col h-full">
               {/* Logo Section - Fixed at top */}
               <motion.div 
                 className="mb-8 flex-shrink-0"
@@ -248,10 +269,10 @@ const PremiumPatientDashboardInner = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
                 >
-                  <Card className="p-4 mb-6 bg-gradient-to-br from-white/60 to-white/40 dark:from-slate-800/60 dark:to-slate-800/40 backdrop-blur-xl border-2 border-white/20 dark:border-slate-700/20 shadow-xl">
+                  <Card className="p-4 mb-6 bg-gradient-to-br from-white/60 to-white/40 dark:from-slate-900/80 dark:to-slate-950/90 backdrop-blur-xl border-2 border-white/20 dark:border-cyan-500/20 shadow-xl dark:shadow-cyan-500/10">
                     <div className="flex items-center gap-3">
                       <div className="relative">
-                        <Avatar className="h-14 w-14 ring-4 ring-white/50 dark:ring-slate-700/50 ring-offset-2">
+                        <Avatar className="h-14 w-14 ring-4 ring-white/50 dark:ring-cyan-500/30 ring-offset-2 dark:ring-offset-slate-950">
                           <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=patient" />
                           <AvatarFallback className="bg-gradient-to-br from-cyan-500 to-blue-600 text-white font-bold text-lg">
                             JD
@@ -311,10 +332,13 @@ const PremiumPatientDashboardInner = () => {
                       <motion.button
                         onClick={() => {
                           setActiveSection(item.id);
-                          setMobileMenuOpen(false); // Close mobile menu on selection
+                          // Close sidebar on mobile after selection
+                          if (window.innerWidth < 768) {
+                            setSidebarCollapsed(true);
+                          }
                         }}
                         className={`
-                          w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all duration-300 group relative overflow-hidden
+                          w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all duration-300 group relative overflow-hidden min-h-[48px] touch-manipulation
                           ${isActive 
                             ? 'bg-gradient-to-r ' + item.gradient + ' text-white shadow-2xl shadow-cyan-500/20 scale-[1.02]' 
                             : 'text-[rgb(var(--text-secondary))] hover:bg-gradient-to-r hover:' + item.gradient + ' hover:bg-opacity-10 hover:shadow-lg hover:shadow-cyan-500/10'
@@ -424,10 +448,13 @@ const PremiumPatientDashboardInner = () => {
         </motion.aside>
 
         {/* Main Content Area */}
-        <div className={`flex-1 ${sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-80'} transition-all duration-500 ease-out`}>
+        <div className={`
+          flex-1 w-full transition-all duration-300
+          ${sidebarCollapsed ? 'md:ml-20' : 'md:ml-[280px]'}
+        `}>
           {/* Premium Floating Header */}
           <motion.header
-            className="sticky top-4 mx-3 sm:mx-6 mb-6 z-50 rounded-3xl backdrop-blur-2xl bg-white/70 dark:bg-slate-900/70 border-2 border-white/20 dark:border-slate-700/20 shadow-2xl transition-colors duration-500"
+            className="sticky top-2 sm:top-4 mx-3 sm:mx-6 mb-4 sm:mb-6 z-30 rounded-2xl sm:rounded-3xl backdrop-blur-sm sm:backdrop-blur-2xl bg-white/90 sm:bg-white/70 dark:bg-slate-950/95 sm:dark:bg-slate-950/85 border-2 border-white/20 dark:border-slate-800/50 shadow-2xl transition-colors duration-500"
             initial={{ y: -100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.6, type: "spring" }}
@@ -435,43 +462,37 @@ const PremiumPatientDashboardInner = () => {
               boxShadow: "0 20px 60px rgba(0, 0, 0, 0.1)",
             }}
           >
-            <div className="px-3 sm:px-6 py-4">
-              <div className="flex items-center justify-between gap-2 sm:gap-4">
+            <div className="px-6 py-4">
+              <div className="flex items-center justify-between gap-4">
                 {/* Left Section */}
-                <div className="flex items-center gap-2 sm:gap-4">
+                <div className="flex items-center gap-4">
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => {
-                      if (window.innerWidth < 1024) {
-                        setMobileMenuOpen(!mobileMenuOpen);
-                      } else {
-                        setSidebarCollapsed(!sidebarCollapsed);
-                      }
-                    }}
+                    onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
                     className="h-11 w-11 rounded-xl hover:bg-gradient-to-br hover:from-blue-500/10 hover:to-cyan-500/10"
                   >
                     <motion.div
                       animate={{ rotate: sidebarCollapsed ? 0 : 180 }}
                       transition={{ duration: 0.3 }}
                     >
-                      {sidebarCollapsed || window.innerWidth < 1024 ? <Menu className="h-5 w-5" /> : <X className="h-5 w-5" />}
+                      {sidebarCollapsed ? <Menu className="h-5 w-5" /> : <X className="h-5 w-5" />}
                     </motion.div>
                   </Button>
 
-                  <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="flex items-center gap-3">
                     {menuItems.find(item => item.id === activeSection) && (
                       <>
                         <motion.div
-                          className={`h-10 w-10 sm:h-12 sm:w-12 rounded-2xl bg-gradient-to-br ${menuItems.find(item => item.id === activeSection)?.gradient} flex items-center justify-center shadow-lg`}
+                          className={`h-12 w-12 rounded-2xl bg-gradient-to-br ${menuItems.find(item => item.id === activeSection)?.gradient} flex items-center justify-center shadow-lg`}
                           whileHover={{ rotate: 5, scale: 1.05 }}
                         >
                           {(() => {
                             const Icon = menuItems.find(item => item.id === activeSection)?.icon;
-                            return Icon ? <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" /> : null;
+                            return Icon ? <Icon className="h-6 w-6 text-white" /> : null;
                           })()}
                         </motion.div>
-                        <div className="hidden sm:block">
+                        <div>
                           <p className="text-sm font-bold text-[rgb(var(--text-primary))]">
                             {menuItems.find(item => item.id === activeSection)?.label}
                           </p>
@@ -485,7 +506,7 @@ const PremiumPatientDashboardInner = () => {
                 </div>
 
                 {/* Right Actions */}
-                <div className="flex items-center gap-2 sm:gap-3">
+                <div className="flex items-center gap-3">
                   {/* Quick Scan Button */}
                   <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                     <Button
@@ -554,7 +575,7 @@ const PremiumPatientDashboardInner = () => {
                     placeholder="Search medicines, doctors, stores, or orders..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-12 h-12 rounded-2xl bg-white/60 dark:bg-slate-800/60 border-2 border-cyan-500/20 dark:border-cyan-400/20 focus:border-cyan-500 dark:focus:border-cyan-400 backdrop-blur-xl transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 focus:shadow-xl focus:shadow-cyan-500/20"
+                    className="pl-12 h-12 rounded-2xl bg-white/60 dark:bg-slate-900/70 border-2 border-cyan-500/20 dark:border-cyan-400/30 focus:border-cyan-500 dark:focus:border-cyan-400 backdrop-blur-xl transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10 focus:shadow-xl focus:shadow-cyan-500/20 dark:focus:shadow-cyan-400/30"
                   />
                 </div>
               </motion.div>
@@ -563,7 +584,7 @@ const PremiumPatientDashboardInner = () => {
 
           {/* Page Content with Animations */}
           <motion.main
-            className="px-3 sm:px-6 pb-8"
+            className="px-6 pb-8"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5, duration: 0.6 }}
@@ -572,10 +593,10 @@ const PremiumPatientDashboardInner = () => {
               {activeSection === 'home' && (
                 <motion.div
                   key="home"
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.4 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
                   className="space-y-6"
                 >
                   {/* Welcome Section */}
@@ -610,13 +631,13 @@ const PremiumPatientDashboardInner = () => {
                           transition={{ delay: 0.1 * index }}
                           whileHover={{ scale: 1.05, y: -5 }}
                         >
-                          <Card className="p-6 bg-gradient-to-br from-white/80 to-white/60 dark:from-slate-800/80 dark:to-slate-800/60 backdrop-blur-xl border-2 border-white/20 dark:border-slate-700/20 shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden group">
+                          <Card className="p-6 bg-gradient-to-br from-white/80 to-white/60 dark:from-slate-900/90 dark:to-slate-950/95 backdrop-blur-xl border-2 border-white/20 dark:border-slate-700/30 dark:hover:border-cyan-500/40 shadow-xl hover:shadow-2xl dark:shadow-cyan-500/10 transition-all duration-300 relative overflow-hidden group">
                             {/* Glow Effect */}
-                            <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
+                            <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-10 dark:group-hover:opacity-20 transition-opacity duration-300`} />
                             
                             <div className="relative z-10">
                               <div className="flex items-start justify-between">
-                                <div className={`h-14 w-14 rounded-2xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center shadow-lg`}>
+                                <div className={`h-14 w-14 rounded-2xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center shadow-lg dark:shadow-xl`}>
                                   <Icon className="h-7 w-7 text-white" />
                                 </div>
                                 <Badge className="bg-white/50 dark:bg-slate-700/50 text-xs font-bold">
@@ -642,10 +663,10 @@ const PremiumPatientDashboardInner = () => {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.5 }}
                     >
-                      <Card className="p-6 bg-gradient-to-br from-white/80 to-white/60 dark:from-slate-800/80 dark:to-slate-800/60 backdrop-blur-xl border-2 border-white/20 dark:border-slate-700/20 shadow-xl">
+                      <Card className="p-6 bg-gradient-to-br from-white/80 to-white/60 dark:from-slate-900/90 dark:to-slate-950/95 backdrop-blur-xl border-2 border-white/20 dark:border-violet-500/20 shadow-xl dark:shadow-violet-500/10">
                         <div className="flex items-center justify-between mb-6">
                           <h3 className="text-lg font-bold text-[rgb(var(--text-primary))] flex items-center gap-2">
-                            <Calendar className="h-5 w-5 text-violet-500" />
+                            <Calendar className="h-5 w-5 text-violet-500 dark:text-violet-400" />
                             Recent Appointments
                           </h3>
                           <Button variant="ghost" size="sm" className="text-xs">View All</Button>
@@ -680,10 +701,10 @@ const PremiumPatientDashboardInner = () => {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.5 }}
                     >
-                      <Card className="p-6 bg-gradient-to-br from-white/80 to-white/60 dark:from-slate-800/80 dark:to-slate-800/60 backdrop-blur-xl border-2 border-white/20 dark:border-slate-700/20 shadow-xl">
+                      <Card className="p-6 bg-gradient-to-br from-white/80 to-white/60 dark:from-slate-900/90 dark:to-slate-950/95 backdrop-blur-xl border-2 border-white/20 dark:border-orange-500/20 shadow-xl dark:shadow-orange-500/10">
                         <div className="flex items-center justify-between mb-6">
                           <h3 className="text-lg font-bold text-[rgb(var(--text-primary))] flex items-center gap-2">
-                            <Bell className="h-5 w-5 text-orange-500" />
+                            <Bell className="h-5 w-5 text-orange-500 dark:text-orange-400" />
                             Today's Reminders
                           </h3>
                           <Button variant="ghost" size="sm" className="text-xs">View All</Button>
@@ -715,10 +736,10 @@ const PremiumPatientDashboardInner = () => {
               {activeSection === 'appointments' && (
                 <motion.div
                   key="appointments"
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.4 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
                 >
                   <AppointmentsSection />
                 </motion.div>
@@ -727,10 +748,10 @@ const PremiumPatientDashboardInner = () => {
               {activeSection === 'orders' && (
                 <motion.div
                   key="orders"
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.4 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
                 >
                   <MedicineOrders />
                 </motion.div>
@@ -739,10 +760,10 @@ const PremiumPatientDashboardInner = () => {
               {activeSection === 'cabinet' && (
                 <motion.div
                   key="cabinet"
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.4 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
                 >
                   <MyMedicineCabinetPage />
                 </motion.div>
@@ -751,10 +772,10 @@ const PremiumPatientDashboardInner = () => {
               {activeSection === 'nearby' && (
                 <motion.div
                   key="nearby"
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.4 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
                 >
                   <NearbyMedicalStoresPage />
                 </motion.div>
@@ -763,10 +784,10 @@ const PremiumPatientDashboardInner = () => {
               {activeSection === 'find-medicine' && (
                 <motion.div
                   key="find-medicine"
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.4 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
                 >
                   <FindMedicineEnhanced />
                 </motion.div>
@@ -775,13 +796,13 @@ const PremiumPatientDashboardInner = () => {
               {activeSection === 'chat' && (
                 <motion.div
                   key="chat"
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.4 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
                   className="space-y-6"
                 >
-                  <Card className="p-12 text-center bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 backdrop-blur-xl border-2 border-purple-200 dark:border-purple-700/20 shadow-xl">
+                  <Card className="p-12 text-center bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 backdrop-blur-sm border-2 border-purple-200 dark:border-purple-700/20 shadow-xl">
                     <motion.div
                       animate={{
                         y: [0, -10, 0],
@@ -794,18 +815,10 @@ const PremiumPatientDashboardInner = () => {
                     >
                       <MessageCircle className="h-24 w-24 text-purple-500 mx-auto mb-6" />
                     </motion.div>
-                    <h3 className="text-3xl font-bold text-[rgb(var(--text-primary))] mb-3">AI Health Assistant</h3>
-                    <p className="text-[rgb(var(--text-secondary))] mb-8 max-w-md mx-auto">
-                      Get instant health advice, medication reminders, and personalized wellness recommendations from our AI-powered chatbot.
+                    <h3 className="text-3xl font-bold text-[rgb(var(--text-primary))] mb-3">AI Health Assistant Coming Soon</h3>
+                    <p className="text-[rgb(var(--text-secondary))] max-w-md mx-auto">
+                      Get instant health advice, medication reminders, and personalized wellness recommendations from our AI-powered assistant.
                     </p>
-                    <Button 
-                      onClick={() => setShowChat(true)}
-                      className="gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-xl"
-                      size="lg"
-                    >
-                      <MessageCircle className="h-5 w-5" />
-                      Start Conversation
-                    </Button>
                   </Card>
                 </motion.div>
               )}
@@ -813,10 +826,10 @@ const PremiumPatientDashboardInner = () => {
               {activeSection === 'settings' && (
                 <motion.div
                   key="settings"
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.4 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
                   className="space-y-6"
                 >
                   <div>
@@ -825,7 +838,7 @@ const PremiumPatientDashboardInner = () => {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Card className="p-6 bg-gradient-to-br from-white/80 to-white/60 dark:from-slate-800/80 dark:to-slate-800/60 backdrop-blur-xl border-2 border-white/20 dark:border-slate-700/20 shadow-xl">
+                    <Card className="p-6 bg-gradient-to-br from-white/80 to-white/60 dark:from-slate-900/90 dark:to-slate-950/95 backdrop-blur-sm sm:backdrop-blur-xl border-2 border-white/20 dark:border-blue-500/20 shadow-xl dark:shadow-blue-500/10">
                       <div className="flex items-start gap-4">
                         <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center flex-shrink-0">
                           <Activity className="h-7 w-7 text-white" />
@@ -838,7 +851,7 @@ const PremiumPatientDashboardInner = () => {
                       </div>
                     </Card>
 
-                    <Card className="p-6 bg-gradient-to-br from-white/80 to-white/60 dark:from-slate-800/80 dark:to-slate-800/60 backdrop-blur-xl border-2 border-white/20 dark:border-slate-700/20 shadow-xl">
+                    <Card className="p-6 bg-gradient-to-br from-white/80 to-white/60 dark:from-slate-900/90 dark:to-slate-950/95 backdrop-blur-xl border-2 border-white/20 dark:border-purple-500/20 shadow-xl dark:shadow-purple-500/10">
                       <div className="flex items-start gap-4">
                         <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-400 flex items-center justify-center flex-shrink-0">
                           <Bell className="h-7 w-7 text-white" />
@@ -851,7 +864,7 @@ const PremiumPatientDashboardInner = () => {
                       </div>
                     </Card>
 
-                    <Card className="p-6 bg-gradient-to-br from-white/80 to-white/60 dark:from-slate-800/80 dark:to-slate-800/60 backdrop-blur-xl border-2 border-white/20 dark:border-slate-700/20 shadow-xl">
+                    <Card className="p-6 bg-gradient-to-br from-white/80 to-white/60 dark:from-slate-900/90 dark:to-slate-950/95 backdrop-blur-xl border-2 border-white/20 dark:border-indigo-500/20 shadow-xl dark:shadow-indigo-500/10">
                       <div className="flex items-start gap-4">
                         <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-400 flex items-center justify-center flex-shrink-0">
                           <Sparkles className="h-7 w-7 text-white" />
@@ -866,7 +879,7 @@ const PremiumPatientDashboardInner = () => {
                       </div>
                     </Card>
 
-                    <Card className="p-6 bg-gradient-to-br from-white/80 to-white/60 dark:from-slate-800/80 dark:to-slate-800/60 backdrop-blur-xl border-2 border-white/20 dark:border-slate-700/20 shadow-xl">
+                    <Card className="p-6 bg-gradient-to-br from-white/80 to-white/60 dark:from-slate-900/90 dark:to-slate-950/95 backdrop-blur-xl border-2 border-white/20 dark:border-rose-500/20 shadow-xl dark:shadow-rose-500/10">
                       <div className="flex items-start gap-4">
                         <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-rose-500 to-red-400 flex items-center justify-center flex-shrink-0">
                           <ShoppingCart className="h-7 w-7 text-white" />
@@ -886,88 +899,11 @@ const PremiumPatientDashboardInner = () => {
         </div>
       </div>
 
-      {/* AI Chatbot */}
-      <AnimatePresence>
-        {showChat && <Chatbot onClose={() => setShowChat(false)} />}
-      </AnimatePresence>
-
-      {/* Prescription Scanner Modal */}
-      <AnimatePresence>
-        {showScanner && (
-          <motion.div
-            className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setShowScanner(false)}
-          >
-            <motion.div
-              className="bg-white dark:bg-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl border-2 border-white/20"
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <h3 className="text-2xl font-bold text-[rgb(var(--text-primary))] mb-6 flex items-center gap-2">
-                <Camera className="h-6 w-6 text-blue-500" />
-                Scan Prescription
-              </h3>
-              <div className="aspect-video bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-2xl border-2 border-dashed border-blue-500/30 flex items-center justify-center mb-6">
-                <div className="text-center">
-                  <Camera className="w-16 h-16 text-blue-500/40 mx-auto mb-3" />
-                  <p className="text-[rgb(var(--text-secondary))] text-sm">Camera preview</p>
-                  <p className="text-xs text-[rgb(var(--text-secondary))] mt-1">Feature coming soon</p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <Button className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white h-12 rounded-xl">
-                  <Camera className="w-4 h-4 mr-2" />
-                  Capture
-                </Button>
-                <Button variant="outline" className="flex-1 h-12 rounded-xl border-2" onClick={() => setShowScanner(false)}>
-                  Cancel
-                </Button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Floating Chat Button */}
-      {!showChat && (
-        <motion.button
-          className="fixed bottom-8 right-8 h-16 w-16 rounded-2xl bg-gradient-to-br from-purple-500 via-pink-500 to-rose-500 shadow-2xl flex items-center justify-center z-40 group"
-          whileHover={{ scale: 1.1, rotate: 5 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={() => setShowChat(true)}
-          initial={{ scale: 0, rotate: -180 }}
-          animate={{ scale: 1, rotate: 0 }}
-          transition={{ delay: 1, type: "spring" }}
-        >
-          <MessageCircle className="w-7 h-7 text-white" />
-          <motion.span
-            className="absolute -top-2 -right-2 h-6 w-6 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold border-2 border-white"
-            animate={{ scale: [1, 1.2, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            3
-          </motion.span>
-          
-          {/* Pulsing Ring */}
-          <motion.div
-            className="absolute inset-0 rounded-2xl bg-purple-500"
-            animate={{
-              scale: [1, 1.3],
-              opacity: [0.5, 0],
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: "easeOut",
-            }}
-          />
-        </motion.button>
-      )}
+      {/* Prescription Scanner Component */}
+      <PrescriptionScanner 
+        isOpen={showScanner} 
+        onClose={() => setShowScanner(false)} 
+      />
     </div>
   );
 };

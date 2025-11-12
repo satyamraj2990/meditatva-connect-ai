@@ -8,13 +8,12 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { EnhancedThemeToggle } from "@/components/EnhancedThemeToggle";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import { Chatbot } from "@/components/Chatbot";
 import { MedicalCabinet } from "@/components/MedicalCabinet";
 import { AppointmentsSection } from "@/components/AppointmentsSection";
 import { MedicineOrders } from "@/components/MedicineOrders";
 import { HealthReminders } from "@/components/HealthReminders";
 import { NearbyMedicalStoresPage } from "@/pages/NearbyMedicalStoresPage";
-import { FindMedicinePage } from "@/pages/FindMedicinePage";
+import { FindMedicineEnhanced } from "@/pages/FindMedicineEnhanced";
 import {
   Home, Calendar, ShoppingCart, Bell, FolderOpen,
   MapPin, MessageCircle, User, LogOut, Menu, X,
@@ -26,8 +25,13 @@ import { toast } from "sonner";
 const ModernPatientDashboard = () => {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState<"home"|"nearby"|"find-medicine"|"orders"|"cabinet"|"appointments"|"chat"|"settings">("home");
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [showChat, setShowChat] = useState(false);
+  // Initialize sidebar as collapsed on mobile, open on desktop
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 768;
+    }
+    return false;
+  });
   const [showNearbyFinder, setShowNearbyFinder] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
 
@@ -40,6 +44,18 @@ const ModernPatientDashboard = () => {
       localStorage.setItem("isAuthenticated", "true");
       localStorage.setItem("userRole", "patient");
     }
+  }, []);
+
+  // Handle window resize to auto-collapse on mobile
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setSidebarCollapsed(true);
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const menuItems = [
@@ -67,43 +83,69 @@ const ModernPatientDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 relative overflow-hidden">
-      {/* Background glows */}
-      <div className="fixed inset-0 pointer-events-none">
+      {/* Background glows - Hidden on mobile */}
+      <div className="fixed inset-0 pointer-events-none hidden md:block">
         <div className="absolute top-0 -right-40 w-96 h-96 bg-gradient-to-br from-blue-400/20 to-cyan-400/10 rounded-full blur-3xl" />
         <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-br from-indigo-400/20 to-purple-400/10 rounded-full blur-3xl" />
       </div>
 
+      {/* Mobile Menu Overlay */}
+      {!sidebarCollapsed && (
+        <motion.div
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={() => setSidebarCollapsed(true)}
+        />
+      )}
+
       <div className="flex relative z-10">
-        {/* Sidebar */}
+        {/* Sidebar - Responsive with Drawer on Mobile */}
         <motion.aside
-          className={`${sidebarCollapsed ? 'w-20' : 'w-72'} h-screen fixed left-0 top-0 transition-all duration-300`}
-          initial={{ x: -20, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
+          initial={false}
+          animate={{
+            opacity: 1
+          }}
+          className={`
+            h-screen fixed left-0 top-0 z-50
+            transition-transform duration-300 ease-in-out
+            ${sidebarCollapsed 
+              ? '-translate-x-full md:translate-x-0 md:w-20' 
+              : 'translate-x-0 w-full max-w-[320px] md:max-w-[280px]'
+            }
+          `}
         >
           <div
             style={{
-              background: 'rgba(255,255,255,0.75)',
+              background: 'rgba(255,255,255,0.95)',
               backdropFilter: 'blur(20px) saturate(180%)'
             }}
-            className="flex flex-col h-full p-6"
+            className={`
+              flex flex-col h-full shadow-2xl
+              ${sidebarCollapsed ? 'p-2 md:p-3' : 'p-4 sm:p-6'}
+            `}
           >
             {/* Logo - Fixed at top */}
-            <div className="mb-6 flex-shrink-0">
-              <div className="flex items-center gap-3">
-                <div className="relative h-12 w-12 rounded-2xl flex items-center justify-center" style={{background:'linear-gradient(135deg,#3B82F6 0%,#60A5FA 100%)'}}>
-                  <Pill className="h-6 w-6 text-white" />
+            <div className={`mb-4 sm:mb-6 flex-shrink-0 ${sidebarCollapsed ? 'md:mb-4' : ''}`}>
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="relative h-10 w-10 sm:h-12 sm:w-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{background:'linear-gradient(135deg,#3B82F6 0%,#60A5FA 100%)'}}>
+                  <Pill className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                 </div>
                 {!sidebarCollapsed && (
-                  <div>
-                    <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">MediTatva</h1>
-                    <p className="text-xs text-slate-500 font-medium">Patient Portal</p>
+                  <div className="flex-1 min-w-0">
+                    <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent truncate">MediTatva</h1>
+                    <p className="text-xs text-slate-500 font-medium truncate">Patient Portal</p>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Scrollable Navigation */}
-            <nav className="flex-1 space-y-2 overflow-y-auto overflow-x-hidden pr-2 scrollbar-thin scrollbar-thumb-blue-300 scrollbar-track-transparent hover:scrollbar-thumb-blue-400"
+            {/* Scrollable Navigation - Mobile Optimized */}
+            <nav className={`
+              flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-blue-300 scrollbar-track-transparent hover:scrollbar-thumb-blue-400
+              ${sidebarCollapsed ? 'space-y-2' : 'space-y-1.5 sm:space-y-2 pr-1 sm:pr-2'}
+            `}
               style={{
                 scrollbarWidth: 'thin',
                 scrollbarColor: '#93C5FD transparent'
@@ -115,17 +157,29 @@ const ModernPatientDashboard = () => {
                 return (
                   <div key={item.id} className="relative group">
                     <motion.button
-                      onClick={() => setActiveSection(item.id as any)}
-                      className={`flex items-center gap-3 px-4 py-3 rounded-2xl w-full transition-all duration-300 relative overflow-hidden ${
-                        isActive 
+                      onClick={() => {
+                        setActiveSection(item.id as any);
+                        // Close sidebar on mobile after selection
+                        if (window.innerWidth < 768) {
+                          setSidebarCollapsed(true);
+                        }
+                      }}
+                      className={`
+                        flex items-center w-full transition-all duration-300 relative overflow-hidden touch-manipulation
+                        ${sidebarCollapsed 
+                          ? 'justify-center p-3 rounded-xl min-h-[48px]' 
+                          : 'gap-2 sm:gap-3 px-3 sm:px-4 py-3 rounded-xl sm:rounded-2xl min-h-[48px]'
+                        }
+                        ${isActive 
                           ? 'bg-gradient-to-r from-blue-500 to-blue-400 text-white shadow-lg shadow-blue-500/30' 
                           : 'text-slate-700 hover:bg-white/60 hover:shadow-md'
-                      }`}
-                      whileHover={{ scale: 1.02 }}
+                        }
+                      `}
+                      whileHover={{ scale: sidebarCollapsed ? 1.05 : 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
                       {/* Glowing accent line for active item */}
-                      {isActive && (
+                      {isActive && !sidebarCollapsed && (
                         <motion.div
                           className="absolute left-0 top-0 bottom-0 w-1 bg-white rounded-r-full"
                           initial={{ height: 0 }}
@@ -134,28 +188,30 @@ const ModernPatientDashboard = () => {
                         />
                       )}
                       
-                      <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${
-                        isActive ? 'bg-white/20' : 'bg-gradient-to-br ' + item.gradient
-                      }`}> 
-                        <Icon className="h-5 w-5 text-white" />
+                      <div className={`
+                        rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0
+                        ${sidebarCollapsed ? 'h-10 w-10' : 'h-9 w-9 sm:h-10 sm:w-10'}
+                        ${isActive ? 'bg-white/20' : 'bg-gradient-to-br ' + item.gradient}
+                      `}> 
+                        <Icon className={`text-white ${sidebarCollapsed ? 'h-5 w-5' : 'h-4 w-4 sm:h-5 sm:w-5'}`} />
                       </div>
                       
                       {!sidebarCollapsed && (
-                        <div className="flex-1 text-left">
-                          <p className={`text-sm font-semibold ${isActive ? 'text-white' : 'text-slate-700'}`}>
+                        <div className="flex-1 text-left min-w-0">
+                          <p className={`text-xs sm:text-sm font-semibold truncate ${isActive ? 'text-white' : 'text-slate-700'}`}>
                             {item.label}
                           </p>
                         </div>
                       )}
                       
                       {!sidebarCollapsed && isActive && (
-                        <ChevronRight className="h-4 w-4 text-white" />
+                        <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 text-white flex-shrink-0" />
                       )}
                     </motion.button>
                     
-                    {/* Tooltip for collapsed mode */}
+                    {/* Tooltip for collapsed mode - Desktop only */}
                     {sidebarCollapsed && (
-                      <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 px-3 py-2 bg-slate-800 text-white text-sm font-medium rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-50 shadow-xl">
+                      <div className="hidden md:block absolute left-full ml-2 top-1/2 -translate-y-1/2 px-3 py-2 bg-slate-800 text-white text-sm font-medium rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-50 shadow-xl">
                         {item.label}
                         <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-slate-800" />
                       </div>
@@ -165,55 +221,69 @@ const ModernPatientDashboard = () => {
               })}
             </nav>
 
-            {/* Logout Button - Fixed at bottom */}
-            <div className="mt-auto pt-6 flex-shrink-0 border-t border-slate-200/50">
-              <Button className="w-full bg-white/60 text-rose-600 border-2 border-rose-200 hover:bg-rose-50" onClick={handleLogout}>
-                <div className="flex items-center gap-2">
+            {/* Logout Button - Fixed at bottom - Mobile Optimized */}
+            <div className={`mt-auto flex-shrink-0 border-t border-slate-200/50 ${sidebarCollapsed ? 'pt-3' : 'pt-4 sm:pt-6'}`}>
+              <Button 
+                className={`
+                  w-full bg-white/60 text-rose-600 border-2 border-rose-200 hover:bg-rose-50 min-h-[48px] touch-manipulation
+                  ${sidebarCollapsed ? 'px-2' : ''}
+                `}
+                onClick={handleLogout}
+              >
+                <div className={`flex items-center ${sidebarCollapsed ? 'justify-center' : 'justify-center gap-2'}`}>
                   <LogOut className="h-4 w-4" />
-                  {!sidebarCollapsed && <span>Logout</span>}
+                  {!sidebarCollapsed && <span className="text-sm sm:text-base">Logout</span>}
                 </div>
               </Button>
             </div>
           </div>
         </motion.aside>
 
-        {/* Main content */}
-        <div className={`flex-1 ${sidebarCollapsed ? 'ml-20' : 'ml-72'} transition-all duration-300`}>
-          <motion.header className="sticky top-4 mx-6 mb-6 z-50 rounded-2xl bg-white/60 backdrop-blur-lg shadow-lg" style={{border:'1px solid rgba(255,255,255,0.5)'}}>
-            <div className="px-6 py-4 flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <Button variant="ghost" size="sm" onClick={() => setSidebarCollapsed(!sidebarCollapsed)} className="hover:bg-blue-500/10">
-                  {sidebarCollapsed ? <Menu className="h-5 w-5" /> : <X className="h-5 w-5" />}
+        {/* Main content - Responsive Margins */}
+        <div className={`
+          flex-1 w-full transition-all duration-300
+          ${sidebarCollapsed ? 'md:ml-20' : 'md:ml-[280px]'}
+        `}>
+          <motion.header 
+            className="sticky top-2 sm:top-4 mx-3 sm:mx-6 mb-4 sm:mb-6 z-30 rounded-xl sm:rounded-2xl bg-white/60 backdrop-blur-lg shadow-lg" 
+            style={{border:'1px solid rgba(255,255,255,0.5)'}}
+          >
+            <div className="px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
+                <Button variant="ghost" size="sm" onClick={() => setSidebarCollapsed(!sidebarCollapsed)} className="hover:bg-blue-500/10 flex-shrink-0 h-9 w-9 sm:h-10 sm:w-10 p-0">
+                  {sidebarCollapsed ? <Menu className="h-4 w-4 sm:h-5 sm:w-5" /> : <X className="h-4 w-4 sm:h-5 sm:w-5" />}
                 </Button>
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center">
-                    <Pill className="h-5 w-5 text-white" />
+                <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                  <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center flex-shrink-0">
+                    <Pill className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold text-slate-700">{menuItems.find(m=>m.id===activeSection)?.label}</p>
-                    <p className="text-xs text-slate-500">MediTatva Patient Portal</p>
+                  <div className="flex-1 min-w-0 hidden sm:block">
+                    <p className="text-xs sm:text-sm font-semibold text-slate-700 truncate">{menuItems.find(m=>m.id===activeSection)?.label}</p>
+                    <p className="text-[10px] sm:text-xs text-slate-500 truncate">MediTatva Patient Portal</p>
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
-                  <Activity className="h-4 w-4 text-blue-600" />
-                  <span className="text-sm font-semibold text-blue-700">Active</span>
+              <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                <div className="hidden sm:flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
+                  <Activity className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
+                  <span className="text-xs sm:text-sm font-semibold text-blue-700">Active</span>
                 </div>
-                <Button variant="ghost" size="sm" className="relative h-11 w-11 rounded-xl hover:bg-blue-500/10"><Bell className="h-5 w-5" /></Button>
+                <Button variant="ghost" size="sm" className="relative h-9 w-9 sm:h-11 sm:w-11 rounded-lg sm:rounded-xl hover:bg-blue-500/10 p-0 flex-shrink-0">
+                  <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
+                </Button>
                 <EnhancedThemeToggle />
-                <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-gradient-to-r from-slate-100 to-blue-50">
-                  <Avatar className="h-9 w-9">
+                <div className="hidden sm:flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-gradient-to-r from-slate-100 to-blue-50">
+                  <Avatar className="h-8 w-8 sm:h-9 sm:w-9">
                     <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=patient" />
-                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-cyan-400 text-white font-bold">JD</AvatarFallback>
+                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-cyan-400 text-white font-bold text-sm">JD</AvatarFallback>
                   </Avatar>
                 </div>
               </div>
             </div>
           </motion.header>
 
-          <motion.main className="px-6 pb-8">
+          <motion.main className="px-3 sm:px-6 pb-6 sm:pb-8">{/* content switch */}
             {/* content switch */}
             <AnimatePresence mode="wait">
               {activeSection === 'home' && (
@@ -303,7 +373,7 @@ const ModernPatientDashboard = () => {
 
               {activeSection === 'find-medicine' && (
                 <motion.div key="find-medicine" initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-20}}>
-                  <FindMedicinePage />
+                  <FindMedicineEnhanced />
                 </motion.div>
               )}
 
@@ -317,17 +387,10 @@ const ModernPatientDashboard = () => {
                     <Card className="p-8 bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200">
                       <div className="text-center">
                         <MessageCircle className="h-20 w-20 text-purple-500 mx-auto mb-4" />
-                        <h3 className="text-2xl font-bold text-slate-800 mb-2">AI Chatbot Coming Soon</h3>
-                        <p className="text-slate-600 mb-6">
+                        <h3 className="text-2xl font-bold text-slate-800 mb-2">AI Health Assistant Coming Soon</h3>
+                        <p className="text-slate-600">
                           Our AI-powered health assistant will provide personalized health advice, answer your medical questions, and help you manage your wellness journey.
                         </p>
-                        <Button 
-                          onClick={() => setShowChat(true)}
-                          className="gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                        >
-                          <MessageCircle className="h-4 w-4" />
-                          Open Chat Assistant
-                        </Button>
                       </div>
                     </Card>
                   </div>
@@ -405,10 +468,6 @@ const ModernPatientDashboard = () => {
         </div>
       </div>
 
-      <AnimatePresence>
-        {showChat && <Chatbot onClose={() => setShowChat(false)} />}
-      </AnimatePresence>
-
       {showScanner && (
         <motion.div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onClick={()=>setShowScanner(false)}>
           <motion.div className="bg-white rounded-xl p-6 max-w-md w-full" initial={{scale:0.95}} animate={{scale:1}} onClick={(e)=>e.stopPropagation()}>
@@ -420,12 +479,6 @@ const ModernPatientDashboard = () => {
             </div>
           </motion.div>
         </motion.div>
-      )}
-
-      {!showChat && (
-        <motion.button className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 shadow-lg flex items-center justify-center z-40" whileHover={{scale:1.05}} onClick={()=>setShowChat(true)}>
-          <MessageCircle className="w-6 h-6 text-white" />
-        </motion.button>
       )}
     </div>
   );

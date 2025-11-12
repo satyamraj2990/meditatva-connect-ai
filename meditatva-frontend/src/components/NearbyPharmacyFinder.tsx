@@ -238,15 +238,15 @@ export const NearbyPharmacyFinder = ({ variant = "patient", onClose }: NearbyPha
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+    <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-2 sm:p-4 backdrop-blur-sm">
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
-        className="w-full max-w-[95vw] sm:max-w-4xl max-h-[90vh] overflow-hidden"
+        className="w-full max-w-[98vw] sm:max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden"
       >
         <Card
-          className="overflow-hidden"
+          className="overflow-hidden flex flex-col"
           style={{
             background: isPharmacy 
               ? 'rgba(17, 24, 39, 0.95)' 
@@ -259,7 +259,7 @@ export const NearbyPharmacyFinder = ({ variant = "patient", onClose }: NearbyPha
         >
           {/* Header */}
           <div
-            className="p-6 border-b"
+            className="p-3 sm:p-4 lg:p-6 border-b flex-shrink-0"
             style={{
               background: isPharmacy
                 ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.2) 100%)'
@@ -269,36 +269,37 @@ export const NearbyPharmacyFinder = ({ variant = "patient", onClose }: NearbyPha
                 : '1px solid rgba(20, 184, 166, 0.3)',
             }}
           >
-            <div className="flex justify-between items-center">
-              <div>
-                <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                  <MapPin className="h-6 w-6 text-cyan-400" />
-                  Find Nearby Medical Stores
+            <div className="flex justify-between items-start sm:items-center gap-2">
+              <div className="flex-1 min-w-0">
+                <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white flex items-center gap-2">
+                  <MapPin className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-cyan-400 flex-shrink-0" />
+                  <span className="truncate">Find Nearby Medical Stores</span>
                 </h2>
-                <p className="text-sm text-gray-400 mt-1">
-                  Comprehensive search within 25km radius • Multiple sources
+                <p className="text-xs sm:text-sm text-gray-400 mt-1 line-clamp-1">
+                  Search within 25km radius • Multiple sources
                 </p>
               </div>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={onClose}
-                className="text-white hover:bg-white/10"
+                className="text-white hover:bg-white/10 flex-shrink-0 h-8 w-8 sm:h-10 sm:w-10"
+                aria-label="Close pharmacy finder"
               >
-                <X className="h-5 w-5" />
+                <X className="h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
             </div>
 
             {/* Search Button */}
             <motion.div 
-              className="mt-4"
+              className="mt-3 sm:mt-4"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
               <Button
                 onClick={searchNearbyPharmacies}
                 disabled={loading}
-                className="w-full"
+                className="w-full min-h-[44px] text-sm sm:text-base"
                 style={{
                   background: loading 
                     ? 'rgba(107, 114, 128, 0.5)'
@@ -312,31 +313,50 @@ export const NearbyPharmacyFinder = ({ variant = "patient", onClose }: NearbyPha
               >
                 {loading ? (
                   <>
-                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                    Searching...
+                    <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 mr-2 animate-spin" />
+                    <span>Searching...</span>
                   </>
                 ) : (
                   <>
-                    <Search className="h-5 w-5 mr-2" />
-                    Search Medical Stores Near Me
+                    <Search className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                    <span>Search Medical Stores Near Me</span>
                   </>
                 )}
               </Button>
             </motion.div>
           </div>
 
-          {/* Results Area */}
-          <div className="p-6 overflow-y-auto max-h-[60vh]">
+          {/* Results Area - Scrollable */}
+          <div className="p-3 sm:p-4 lg:p-6 overflow-y-auto flex-1" style={{ maxHeight: 'calc(95vh - 180px)' }}>
             <AnimatePresence mode="wait">
               {error && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
-                  className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 text-center"
+                  className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 sm:p-4 text-center"
                 >
-                  <AlertCircle className="h-8 w-8 text-red-400 mx-auto mb-2" />
-                  <p className="text-red-300">{error}</p>
+                  <AlertCircle className="h-6 w-6 sm:h-8 sm:w-8 text-red-400 mx-auto mb-2" />
+                  <p className="text-red-300 text-sm sm:text-base">{error}</p>
+                </motion.div>
+              )}
+
+              {loading && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="space-y-3 sm:space-y-4"
+                >
+                  {[1, 2, 3].map((i) => (
+                    <div
+                      key={i}
+                      className="bg-gray-800/30 rounded-lg p-3 sm:p-4 animate-pulse"
+                    >
+                      <div className="h-4 sm:h-5 bg-gray-700/50 rounded w-3/4 mb-2"></div>
+                      <div className="h-3 sm:h-4 bg-gray-700/30 rounded w-full mb-2"></div>
+                      <div className="h-3 sm:h-4 bg-gray-700/30 rounded w-2/3"></div>
+                    </div>
+                  ))}
                 </motion.div>
               )}
 
@@ -344,23 +364,23 @@ export const NearbyPharmacyFinder = ({ variant = "patient", onClose }: NearbyPha
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="text-center py-12"
+                  className="text-center py-8 sm:py-12"
                 >
-                  <MapPin className="h-16 w-16 text-gray-500 mx-auto mb-4" />
-                  <p className="text-gray-400 text-lg">
+                  <MapPin className="h-12 w-12 sm:h-16 sm:w-16 text-gray-500 mx-auto mb-3 sm:mb-4" />
+                  <p className="text-gray-400 text-base sm:text-lg px-2">
                     Click the button above to find nearby pharmacies
                   </p>
                 </motion.div>
               )}
 
-              {pharmacies.length > 0 && (
+              {!loading && pharmacies.length > 0 && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="space-y-4"
+                  className="space-y-3 sm:space-y-4"
                 >
-                  <p className="text-sm text-gray-400 mb-4">
-                    Found {pharmacies.length} pharmacies near you
+                  <p className="text-xs sm:text-sm text-gray-400 mb-3 sm:mb-4 font-medium">
+                    Found {pharmacies.length} {pharmacies.length === 1 ? 'pharmacy' : 'pharmacies'} near you
                   </p>
 
                   {pharmacies.map((pharmacy, index) => (
@@ -371,24 +391,24 @@ export const NearbyPharmacyFinder = ({ variant = "patient", onClose }: NearbyPha
                       transition={{ delay: index * 0.05 }}
                     >
                       <Card
-                        className="p-4 hover:scale-[1.01] transition-transform cursor-pointer"
+                        className="p-3 sm:p-4 hover:scale-[1.01] transition-transform cursor-pointer"
                         style={{
                           background: 'rgba(17, 24, 39, 0.6)',
                           border: '1px solid rgba(255, 255, 255, 0.1)',
                         }}
                       >
-                        <div className="flex justify-between items-start mb-3">
-                          <div className="flex-1">
-                            <h3 className="text-lg font-semibold text-white mb-1">
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-3 mb-3">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-base sm:text-lg font-semibold text-white mb-1 line-clamp-2">
                               {pharmacy.name}
                             </h3>
-                            <p className="text-sm text-gray-400 flex items-center gap-1">
-                              <MapPin className="h-3 w-3" />
-                              {pharmacy.address}
+                            <p className="text-xs sm:text-sm text-gray-400 flex items-start gap-1 line-clamp-2">
+                              <MapPin className="h-3 w-3 flex-shrink-0 mt-0.5" />
+                              <span>{pharmacy.address}</span>
                             </p>
                           </div>
                           <Badge
-                            className="ml-2"
+                            className="self-start sm:ml-2 flex-shrink-0 whitespace-nowrap"
                             style={{
                               background: pharmacy.distance < 1 
                                 ? 'rgba(34, 197, 94, 0.2)'
@@ -406,32 +426,32 @@ export const NearbyPharmacyFinder = ({ variant = "patient", onClose }: NearbyPha
                         </div>
 
                         {pharmacy.phone && (
-                          <p className="text-sm text-gray-400 flex items-center gap-1 mb-3">
-                            <Phone className="h-3 w-3" />
-                            {pharmacy.phone}
+                          <p className="text-xs sm:text-sm text-gray-400 flex items-center gap-1 mb-3">
+                            <Phone className="h-3 w-3 flex-shrink-0" />
+                            <span className="truncate">{pharmacy.phone}</span>
                           </p>
                         )}
 
-                        <div className="flex gap-2">
+                        <div className="flex flex-col sm:flex-row gap-2">
                           <Button
                             size="sm"
                             onClick={() => openInGoogleMaps(pharmacy.lat, pharmacy.lon, pharmacy.name)}
-                            className="flex-1"
+                            className="flex-1 min-h-[44px] text-xs sm:text-sm"
                             style={{
                               background: 'rgba(20, 184, 166, 0.2)',
                               border: '1px solid rgba(20, 184, 166, 0.3)',
                             }}
                           >
-                            <Navigation className="h-3 w-3 mr-1" />
-                            View on Map
+                            <Navigation className="h-3 w-3 mr-1 sm:mr-2 flex-shrink-0" />
+                            <span>View on Map</span>
                           </Button>
                           <Button
                             size="sm"
                             variant="outline"
-                            className="border-white/10 hover:bg-white/5 text-gray-300"
+                            className="flex-1 sm:flex-initial border-white/10 hover:bg-white/5 text-gray-300 min-h-[44px] text-xs sm:text-sm"
                           >
-                            <ExternalLink className="h-3 w-3 mr-1" />
-                            Details
+                            <ExternalLink className="h-3 w-3 mr-1 sm:mr-2 flex-shrink-0" />
+                            <span>Details</span>
                           </Button>
                         </div>
                       </Card>
